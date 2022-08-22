@@ -35,7 +35,7 @@ variable "ecs_cluster" {
   description = "The name of the ECS cluster."
 }
 
-variable "kosli_user" {
+variable "kosli_org" {
   type        = string
   description = "The Kosli user or organization."
 }

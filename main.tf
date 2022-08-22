@@ -42,7 +42,7 @@ module "reporter_lambda" {
     KOSLI_HOST      = var.kosli_host
     KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
     KOSLI_ENV       = var.kosli_env
-    KOSLI_ORG       = var.kosli_user
+    KOSLI_ORG       = var.kosli_org
     ECS_CLUSTER     = var.ecs_cluster
   }
 
