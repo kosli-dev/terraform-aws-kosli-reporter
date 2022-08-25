@@ -44,3 +44,9 @@ variable "cloudwatch_logs_retention_in_days" {
   type    = number
   default = 7
 }
+
+variable "schedule_expression" {
+  type    = string
+  default = "rate(1 minute)"
+  description = "The scheduling expression. For example, cron(0 20 * * ? *) or rate(5 minutes). For more information, refer to the AWS documentation https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html"
+}

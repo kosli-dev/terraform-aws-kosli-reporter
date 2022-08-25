@@ -2,7 +2,7 @@ resource "aws_cloudwatch_event_rule" "cron_every_minute" {
   name        = "run-${var.name}-lambda-reporter"
   description = "Execute ${var.name} lambda reporter"
 
-  schedule_expression = "rate(1 minute)"
+  schedule_expression = var.schedule_expression
 }
 
 resource "aws_cloudwatch_event_target" "lambda_reporter" {
