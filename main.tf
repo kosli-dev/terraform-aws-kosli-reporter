@@ -47,10 +47,14 @@ module "reporter_lambda" {
   }
 
   allowed_triggers = {
-    AllowExecutionFromCloudWatch = {
+    AllowExecutionFromCloudWatchCron = {
       principal  = "events.amazonaws.com"
       source_arn = aws_cloudwatch_event_rule.cron_every_minute.arn
-    }
+    },
+    AllowExecutionFromCloudWatchECS = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_cloudwatch_event_rule.ecs_service_updated.arn
+    },
   }
 
   cloudwatch_logs_retention_in_days = var.cloudwatch_logs_retention_in_days
