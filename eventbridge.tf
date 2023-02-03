@@ -13,10 +13,11 @@ resource "aws_cloudwatch_event_rule" "ecs_service_updated" {
 
   event_pattern = jsonencode({
     source      = ["aws.ecs"]
-    detail-type = ["ECS Service Action"]
+    detail-type = ["ECS Task State Change"]
     detail      = {
       clusterArn = ["arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster/${var.ecs_cluster}"]
-      eventName  = ["SERVICE_STEADY_STATE"]
+      desiredStatus = ["RUNNING"]
+      lastStatus = ["RUNNING"]
     }
   })
   tags = var.tags
