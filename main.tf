@@ -20,14 +20,29 @@ data "null_data_source" "downloaded_package" {
   }
 }
 
+locals {
+  trigger_cron = {
+    AllowExecutionFromCloudWatchCron = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_cloudwatch_event_rule.cron_every_minute.arn
+    }}
+
+  trigger_ecs_task_change = var.kosli_environment_type == "ecs" ? {AllowExecutionFromCloudWatchECS = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_cloudwatch_event_rule.ecs_task_updated[0].arn
+    }} : {}
+
+  allowed_triggers_combined = merge(local.trigger_cron, local.trigger_ecs_task_change)
+}
+
 module "reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "3.3.1"
 
   attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.ecs_list_allow.json
+  policy_json        = data.aws_iam_policy_document.combined.json
 
-  function_name          = "reporter-${var.name}"
+  function_name          = var.name
   description            = "Send reports to the Kosli app"
   handler                = "function.handler"
   runtime                = "provided"
@@ -39,23 +54,12 @@ module "reporter_lambda" {
   publish        = true
 
   environment_variables = {
+    KOSLI_COMMAND = var.kosli_command
     KOSLI_HOST      = var.kosli_host
     KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
-    KOSLI_ENV       = var.kosli_env
-    KOSLI_ORG       = var.kosli_org
-    ECS_CLUSTER     = var.ecs_cluster
   }
 
-  allowed_triggers = {
-    AllowExecutionFromCloudWatchCron = {
-      principal  = "events.amazonaws.com"
-      source_arn = aws_cloudwatch_event_rule.cron_every_minute.arn
-    },
-    AllowExecutionFromCloudWatchECS = {
-      principal  = "events.amazonaws.com"
-      source_arn = aws_cloudwatch_event_rule.ecs_service_updated.arn
-    },
-  }
+  allowed_triggers = local.allowed_triggers_combined
 
   cloudwatch_logs_retention_in_days = var.cloudwatch_logs_retention_in_days
 
