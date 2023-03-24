@@ -40,7 +40,7 @@ module "reporter_lambda" {
   version = "3.3.1"
 
   attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.combined.json
+  policy_json        = var.use_custom_policy ? var.custom_policy_json : data.aws_iam_policy_document.combined[0].json
 
   function_name          = var.name
   description            = "Send reports to the Kosli app"

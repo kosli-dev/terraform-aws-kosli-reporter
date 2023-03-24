@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "ecs_read_allow" {
-  count = var.kosli_environment_type == "ecs" ? 1 : 0
+  count = var.kosli_environment_type == "ecs" && !var.use_custom_policy ? 1 : 0
   statement {
     sid    = "ECSList"
     effect = "Allow"
@@ -28,9 +28,9 @@ data "aws_iam_policy_document" "ecs_read_allow" {
 }
 
 data "aws_iam_policy_document" "lambda_read_allow" {
-  count = var.kosli_environment_type == "lambda" ? 1 : 0
+  count = var.kosli_environment_type == "lambda" && !var.use_custom_policy ? 1 : 0
   statement {
-    sid    = "ECSGet"
+    sid    = "LambdaRead"
     effect = "Allow"
     actions = [
       "lambda:GetFunctionConfiguration"
@@ -42,6 +42,7 @@ data "aws_iam_policy_document" "lambda_read_allow" {
 }
 
 data "aws_iam_policy_document" "combined" {
+  count = !var.use_custom_policy ? 1 : 0
   source_policy_documents = concat(
     data.aws_iam_policy_document.ecs_read_allow.*.json,
     data.aws_iam_policy_document.lambda_read_allow.*.json
