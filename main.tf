@@ -25,22 +25,33 @@ locals {
     AllowExecutionFromCloudWatchCron = {
       principal  = "events.amazonaws.com"
       source_arn = aws_cloudwatch_event_rule.cron_every_minute.arn
-    }}
+  } }
 
-  trigger_ecs_task_change = var.kosli_environment_type == "ecs" ? {AllowExecutionFromCloudWatchECS = {
-      principal  = "events.amazonaws.com"
-      source_arn = aws_cloudwatch_event_rule.ecs_task_updated[0].arn
-    }} : {}
+  trigger_ecs_task_change = var.kosli_environment_type == "ecs" ? { AllowExecutionFromCloudWatchECS = {
+    principal  = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.ecs_task_updated[0].arn
+  } } : {}
 
   allowed_triggers_combined = merge(local.trigger_cron, local.trigger_ecs_task_change)
 }
+
+locals {
+  kosli_command_mandatory_parameter = {
+    s3     = "bucket"
+    ecs    = "cluster"
+    lambda = "function-name"
+  }
+  kosli_command_mandatory = "kosli snapshot ${var.kosli_environment_type} ${var.kosli_environment_name} --${local.kosli_command_mandatory_parameter[var.kosli_environment_type]} ${var.reported_aws_resource_name}"
+  kosli_command           = var.kosli_command_optional_parameters == "" ? local.kosli_command_mandatory : "${local.kosli_command_mandatory} ${var.kosli_command_optional_parameters}"
+}
+
 
 module "reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "3.3.1"
 
   attach_policy_json = true
-  policy_json        = var.use_custom_policy ? var.custom_policy_json : data.aws_iam_policy_document.combined[0].json
+  policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
 
   function_name          = var.name
   description            = "Send reports to the Kosli app"
@@ -48,15 +59,18 @@ module "reporter_lambda" {
   runtime                = "provided"
   local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
 
-  role_name      = var.name
+  role_name      = var.create_role ? var.name : null
   timeout        = 30
   create_package = false
   publish        = true
+  create_role    = var.create_role
+  lambda_role    = var.create_role ? "" : var.role_arn
 
   environment_variables = {
-    KOSLI_COMMAND = var.kosli_command
+    KOSLI_COMMAND   = local.kosli_command
     KOSLI_HOST      = var.kosli_host
     KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
+    KOSLI_ORG       = var.kosli_org
   }
 
   allowed_triggers = local.allowed_triggers_combined
