@@ -9,13 +9,14 @@ Terraform module to deploy the Kosli reporter - AWS lambda function that sends r
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.1.0"
+  version = "0.1.2"
 
   name                       = "production_app"
   kosli_environment_type     = "ecs"
   kosli_cli_version          = "v2.0.0"
   kosli_environment_name     = "production"
-  reported_aws_resource_name = "app"
+  kosli_org                  = "my-organisation"
+  reported_aws_resource_name = "app-cluster"
 }
 ```
 
@@ -26,12 +27,13 @@ By default Reporter module creates IAM policies to allow Lambda function to acce
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.1.0"
+  version = "0.1.2"
 
   name                       = "staging_app"
   kosli_environment_type     = "lambda"
   kosli_cli_version          = "v2.0.0"
   kosli_environment_name     = "staging"
+  kosli_org                  = "my-organisation"
   reported_aws_resource_name = "my-lambda-function"
   use_custom_policy          = true
   custom_policy_json         = data.aws_iam_policy_document.this.json
@@ -57,12 +59,13 @@ Also it is possible to provide custom IAM role. You need to disable default role
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.1.0"
+  version = "0.1.2"
 
   name                       = "staging_app"
   kosli_environment_type     = "s3"
   kosli_cli_version          = "v2.0.0"
   kosli_environment_name     = "staging"
+  kosli_org                  = "my-organisation"
   reported_aws_resource_name = "my-s3-bucket"
   role_arn                   = aws_iam_role.this.arn
   create_role                = false
@@ -76,12 +79,13 @@ module "lambda_reporter" {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.1.0"
+  version = "0.1.2"
 
   name                              = "staging_app"
   kosli_environment_type            = "lambda"
   kosli_cli_version                 = "v2.0.0"
   kosli_environment_name            = "staging"
+  kosli_org                         = "my-organisation"
   reported_aws_resource_name        = "my-lambda-function"
   kosli_command_optional_parameters = "--function-version 2"
 }
