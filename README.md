@@ -9,7 +9,7 @@ Terraform module to deploy the Kosli reporter - AWS lambda function that sends r
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.0.8"
+  version = "0.1.0"
 
   name                       = "production_app"
   kosli_environment_type     = "ecs"
@@ -26,7 +26,7 @@ By default Reporter module creates IAM policies to allow Lambda function to acce
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.0.8"
+  version = "0.1.0"
 
   name                       = "staging_app"
   kosli_environment_type     = "lambda"
@@ -57,7 +57,7 @@ Also it is possible to provide custom IAM role. You need to disable default role
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.0.8"
+  version = "0.1.0"
 
   name                       = "staging_app"
   kosli_environment_type     = "s3"
@@ -76,7 +76,7 @@ module "lambda_reporter" {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.0.8"
+  version = "0.1.0"
 
   name                              = "staging_app"
   kosli_environment_type            = "lambda"
