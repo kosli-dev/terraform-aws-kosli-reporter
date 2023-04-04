@@ -27,12 +27,22 @@ locals {
       source_arn = aws_cloudwatch_event_rule.cron_every_minute.arn
   } }
 
-  trigger_ecs_task_change = var.kosli_environment_type == "ecs" ? { AllowExecutionFromCloudWatchECS = {
+  trigger_ecs_task_changed = var.kosli_environment_type == "ecs" ? { AllowExecutionFromCloudWatchECS = {
     principal  = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.ecs_task_updated[0].arn
   } } : {}
 
-  allowed_triggers_combined = merge(local.trigger_cron, local.trigger_ecs_task_change)
+  trigger_lambda_new_version_published = var.kosli_environment_type == "lambda" ? { AllowExecutionFromCloudWatchLambda = {
+    principal  = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.lambda_function_version_published[0].arn
+  } } : {}
+
+  trigger_s3_configuration_changed = var.kosli_environment_type == "s3" ? { AllowExecutionFromCloudWatchS3 = {
+    principal  = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.s3_configuration_updated[0].arn
+  } } : {}
+
+  allowed_triggers_combined = merge(local.trigger_cron, local.trigger_ecs_task_changed, local.trigger_lambda_new_version_published, local.trigger_s3_configuration_changed)
 }
 
 locals {

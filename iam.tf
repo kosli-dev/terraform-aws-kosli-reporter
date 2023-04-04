@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "ecs_read_allow" {
-  # count = var.kosli_environment_type == "ecs" && var.create_role ? 1 : 0
+  count = var.kosli_environment_type == "ecs" && var.create_role ? 1 : 0
   statement {
     sid    = "ECSList"
     effect = "Allow"
