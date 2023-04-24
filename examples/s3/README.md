@@ -1,0 +1,1 @@
+This example deploys Kosli reporter to track what is running in an AWS S3 bucket. Assume your Kosli organisation name is `my_org`, Kosli environment name is `staging`, the S3 bucket name is `my_s3_bucket`.

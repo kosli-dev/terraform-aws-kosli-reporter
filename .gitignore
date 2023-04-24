@@ -1,0 +1,10 @@
+*.zip
+
+# Terraform
+**/.terraform/*
+.terraform.*
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*plan.json
+**/.terraform.lock.hcl
