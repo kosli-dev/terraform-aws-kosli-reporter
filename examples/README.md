@@ -10,6 +10,6 @@ In order to deploy the Kosli reporter module, you will need to do the following:
 
 4. Create a Terraform configuration: In order to use the Kosli reporter module, you'll need to create a Terraform configuration. Here are configuration examples that will track [ECS](./ecs), [Lambda](./lambda), [S3](./s3) resources.
 
-5. Initialize and run Terraform: Once you've created your Terraform configuration, you'll need to initialize Terraform by running the `terraform init` command in the same directory as your configuration files. This will download the necessary modules and providers for your configuration. Then, you can run the `terraform apply` command to apply your configuration and generate a report.
+5. Initialize and run Terraform: Once you've created your Terraform configuration, you'll need to initialize Terraform by running the `terraform init` command in the same directory as your configuration files. This will download the necessary modules and providers for your configuration. Then, you can run the `terraform apply` command to apply your configuration.
 
 6. To check Lambda reporter logs you can go to the AWS console -> Lambda service -> choose your lambda reporter function -> Monitor tab -> Logs tab.
