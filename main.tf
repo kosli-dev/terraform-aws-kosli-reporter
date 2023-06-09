@@ -49,7 +49,7 @@ locals {
   kosli_command_mandatory_parameter = {
     s3     = "bucket"
     ecs    = "cluster"
-    lambda = "function-name"
+    lambda = "function-names"
   }
   kosli_command_mandatory = "kosli snapshot ${var.kosli_environment_type} ${var.kosli_environment_name} --${local.kosli_command_mandatory_parameter[var.kosli_environment_type]} ${var.reported_aws_resource_name}"
   kosli_command           = var.kosli_command_optional_parameters == "" ? local.kosli_command_mandatory : "${local.kosli_command_mandatory} ${var.kosli_command_optional_parameters}"
