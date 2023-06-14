@@ -86,3 +86,15 @@ variable "kosli_api_token_ssm_parameter_name" {
   type        = string
   default     = "kosli_api_token"
 }
+
+variable "use_custom_eventbridge_pattern" {
+  description = "Controls whether to provide custom pattern for the eventbridge rule, that triggers the Reporter Lambda Function. Set to true if you need to provide own event pattern."
+  type        = bool
+  default     = false
+}
+
+variable "custom_eventbridge_pattern" {
+  description = "Event pattern described a JSON object."
+  type        = string
+  default     = null
+}

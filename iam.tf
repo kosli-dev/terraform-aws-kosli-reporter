@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "ecs_read_allow" {
 
 locals {
   lambda_function_names_list = split(",", var.reported_aws_resource_name)
-  resources = [for function_name in local.lambda_function_names_list : 
+  lambda_function_arns_list = [for function_name in local.lambda_function_names_list : 
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${function_name}*"
       ]
 }
@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "lambda_read_allow" {
     actions = [
       "lambda:GetFunctionConfiguration"
     ]
-    resources = local.resources
+    resources = local.lambda_function_arns_list
   }
 }
 

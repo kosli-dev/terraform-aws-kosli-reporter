@@ -41,23 +41,28 @@ resource "aws_cloudwatch_event_target" "ecs_task_updated" {
 }
 
 # Trigger reporter lambda right after reported lambda function is changed.
+# Create the default eventbridge pattern if custom one is not provided.
+locals {
+  lambda_event_pattern = !var.use_custom_eventbridge_pattern ? jsonencode({
+    source      = ["aws.lambda"]
+    detail-type = ["AWS API Call via CloudTrail"]
+    detail = {
+      requestParameters = {
+        functionName = local.lambda_function_names_list
+      }
+      responseElements = {
+        functionName = local.lambda_function_names_list
+      }
+    }
+  }) : var.custom_eventbridge_pattern
+}
+
 resource "aws_cloudwatch_event_rule" "lambda_function_version_published" {
   count       = var.kosli_environment_type == "lambda" ? 1 : 0
   name        = "${var.name}-lambda-function-version-published"
   description = "Lambda function version has been published"
 
-  event_pattern = jsonencode({
-    source      = ["aws.lambda"]
-    detail-type = ["AWS API Call via CloudTrail"]
-    detail = {
-      requestParameters = {
-        functionName = [var.reported_aws_resource_name]
-      }
-      responseElements = {
-        functionName = [var.reported_aws_resource_name]
-      }
-    }
-  })
+  event_pattern = local.lambda_event_pattern
   tags = var.tags
 }
 
