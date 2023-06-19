@@ -9,66 +9,50 @@ Terraform module to deploy the Kosli reporter - AWS lambda function that sends r
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.2.1"
+  version = "0.3.0"
 
   name                       = "production_app"
   kosli_environment_type     = "ecs"
-  kosli_cli_version          = "v2.4.0"
+  kosli_cli_version          = "2.4.1"
   kosli_environment_name     = "production"
   kosli_org                  = "my-organisation"
   reported_aws_resource_name = "app-cluster"
 }
 ```
 
-## IAM
-### Set custom IAM policy
-By default Reporter module creates IAM policies to allow Lambda function to access the reported environments. Also possible to provide the custom IAM policy:
-
-```
-module "lambda_reporter" {
-  source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.2.1"
-
-  name                       = "staging_app"
-  kosli_environment_type     = "lambda"
-  kosli_cli_version          = "v2.4.0"
-  kosli_environment_name     = "staging"
-  kosli_org                  = "my-organisation"
-  reported_aws_resource_name = "my-lambda-function"
-  use_custom_policy          = true
-  custom_policy_json         = data.aws_iam_policy_document.this.json
-}
-
-data "aws_iam_policy_document" "this" {
-  statement {
-    sid    = "LambdaRead"
-    effect = "Allow"
-    actions = [
-      "lambda:GetFunctionConfiguration"
-    ]
-    resources = [
-      "arn:aws:lambda:eu-central-1:123456789876:function:my-lambda-function"
-    ]
-  }
-}
-```
-
-### Set custom IAM role
+## Set custom IAM role
 Also it is possible to provide custom IAM role. You need to disable default role creation by setting the parameter `create_role` to `false` and providing custom role ARN with parameter `role_arn`:
 
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.2.1"
+  version = "0.3.0"
 
   name                       = "staging_app"
   kosli_environment_type     = "s3"
-  kosli_cli_version          = "v2.4.0"
+  kosli_cli_version          = "v2.4.1"
   kosli_environment_name     = "staging"
   kosli_org                  = "my-organisation"
   reported_aws_resource_name = "my-s3-bucket"
   role_arn                   = aws_iam_role.this.arn
   create_role                = false
+}
+
+resource "aws_iam_role" "this" {
+  name               = "staging_reporter"
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+  })
 }
 ```
 
@@ -79,11 +63,11 @@ module "lambda_reporter" {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.2.1"
+  version = "0.3.0"
 
   name                              = "staging_app"
   kosli_environment_type            = "lambda"
-  kosli_cli_version                 = "v2.4.0"
+  kosli_cli_version                 = "v2.4.1"
   kosli_environment_name            = "staging"
   kosli_org                         = "my-organisation"
   reported_aws_resource_name        = "my-lambda-function" # use a comma-separated list of function names to report multiple functions

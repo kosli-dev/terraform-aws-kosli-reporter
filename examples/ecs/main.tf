@@ -23,7 +23,7 @@ resource "random_pet" "this" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.2.1"
+  version = "0.3.0"
 
   name                              = local.reporter_name
   kosli_environment_type            = "ecs"

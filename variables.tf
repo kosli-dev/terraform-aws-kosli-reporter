@@ -24,7 +24,7 @@ variable "name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format v0.1.41"
+  description = "The Kosli cli version, should be set in format 2.4.1"
 }
 
 variable "tags" {
@@ -37,12 +37,6 @@ variable "kosli_host" {
   type        = string
   default     = "https://app.kosli.com"
   description = "The Kosli endpoint."
-}
-
-variable "reporter_releases_host" {
-  type        = string
-  default     = "https://reporter-releases.kosli.com"
-  description = "Where to download the Reporter Lambda package."
 }
 
 variable "reported_aws_resource_name" {

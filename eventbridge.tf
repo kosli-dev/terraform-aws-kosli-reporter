@@ -92,3 +92,29 @@ resource "aws_cloudwatch_event_target" "s3_configuration_updated" {
   rule      = aws_cloudwatch_event_rule.s3_configuration_updated[0].name
   target_id = "${var.name}-s3-configuration-updated"
 }
+
+# Prepare triggers list
+locals {
+  trigger_cron = {
+    AllowExecutionFromCloudWatchCron = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_cloudwatch_event_rule.cron_every_minute.arn
+  } }
+
+  trigger_ecs_task_changed = var.kosli_environment_type == "ecs" ? { AllowExecutionFromCloudWatchECS = {
+    principal  = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.ecs_task_updated[0].arn
+  } } : {}
+
+  trigger_lambda_new_version_published = var.kosli_environment_type == "lambda" ? { AllowExecutionFromCloudWatchLambda = {
+    principal  = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.lambda_function_version_published[0].arn
+  } } : {}
+
+  trigger_s3_configuration_changed = var.kosli_environment_type == "s3" ? { AllowExecutionFromCloudWatchS3 = {
+    principal  = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.s3_configuration_updated[0].arn
+  } } : {}
+
+  allowed_triggers_combined = merge(local.trigger_cron, local.trigger_ecs_task_changed, local.trigger_lambda_new_version_published, local.trigger_s3_configuration_changed)
+}

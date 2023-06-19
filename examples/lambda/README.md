@@ -1,1 +1,1 @@
-This example deploys Kosli reporter to track what is running in a specific version of an AWS Lambda function. Assume your Kosli organisation name is `my_org`, Kosli environment name is `staging`, the AWS Lambda function name is `my_lambda_function`.
+This example deploys Kosli reporter to track an AWS Lambda function. Assume your Kosli organisation name is `my_org`, Kosli environment name is `staging`, the AWS Lambda function name is `my_lambda_function`.
