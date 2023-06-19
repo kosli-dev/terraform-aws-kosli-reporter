@@ -30,7 +30,7 @@ module "lambda_reporter" {
 
   name                       = "staging_app"
   kosli_environment_type     = "s3"
-  kosli_cli_version          = "v2.4.1"
+  kosli_cli_version          = "2.4.1"
   kosli_environment_name     = "staging"
   kosli_org                  = "my-organisation"
   reported_aws_resource_name = "my-s3-bucket"
@@ -67,7 +67,7 @@ module "lambda_reporter" {
 
   name                              = "staging_app"
   kosli_environment_type            = "lambda"
-  kosli_cli_version                 = "v2.4.1"
+  kosli_cli_version                 = "2.4.1"
   kosli_environment_name            = "staging"
   kosli_org                         = "my-organisation"
   reported_aws_resource_name        = "my-lambda-function" # use a comma-separated list of function names to report multiple functions

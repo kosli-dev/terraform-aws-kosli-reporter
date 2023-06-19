@@ -27,7 +27,7 @@ module "lambda_reporter" {
 
   name                              = local.reporter_name
   kosli_environment_type            = "lambda"
-  kosli_cli_version                 = "v2.4.1"
+  kosli_cli_version                 = "2.4.1"
   kosli_environment_name            = "staging"
   kosli_org                         = "my_org"
   reported_aws_resource_name        = "my_lambda_function" # use a comma-separated list of function names to report multiple functions 
