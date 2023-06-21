@@ -5,10 +5,10 @@ module "reporter_lambda" {
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
 
-  function_name          = var.name
-  description            = "Send reports to the Kosli app"
-  handler                = "function.handler"
-  runtime                = "provided"
+  function_name = var.name
+  description   = "Send reports to the Kosli app"
+  handler       = "function.handler"
+  runtime       = "provided"
 
   source_path = [
     "${path.module}/src/bootstrap",

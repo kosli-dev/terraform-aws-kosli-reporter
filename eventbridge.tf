@@ -63,7 +63,7 @@ resource "aws_cloudwatch_event_rule" "lambda_function_version_published" {
   description = "Lambda function version has been published"
 
   event_pattern = local.lambda_event_pattern
-  tags = var.tags
+  tags          = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "lambda_function_version_published" {
@@ -80,8 +80,8 @@ resource "aws_cloudwatch_event_rule" "s3_configuration_updated" {
   description = "S3 configuragtion has been updated"
 
   event_pattern = jsonencode({
-    source      = ["aws.s3"]
-    resources   = ["arn:aws:s3:::${var.reported_aws_resource_name}"]
+    source    = ["aws.s3"]
+    resources = ["arn:aws:s3:::${var.reported_aws_resource_name}"]
   })
   tags = var.tags
 }

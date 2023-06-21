@@ -92,3 +92,9 @@ variable "custom_eventbridge_pattern" {
   type        = string
   default     = null
 }
+
+variable "always_download_kosli_bin" {
+  description = "Controls whether to download Kosli bin on every terraform run for preparing the Reporter lambda package. Could be useful in CI."
+  type        = bool
+  default     = false
+}

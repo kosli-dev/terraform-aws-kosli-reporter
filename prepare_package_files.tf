@@ -3,10 +3,17 @@ locals {
   kosli_src_path = "${path.module}/builds/kosli_${var.kosli_cli_version}"
 }
 
-resource "null_resource" "download_and_unzip" {
-  triggers = {
+# Download Kosli binary always (could be useful when running on CI) or just when it's version have been changed.
+locals {
+  kosli_download_triggers = var.always_download_kosli_bin ? {
+    always_run = "${timestamp()}"
+  } : {
     downloaded = "${local.kosli_src_path}/kosli.tar.gz"
   }
+}
+
+resource "null_resource" "download_and_unzip" {
+  triggers = local.kosli_download_triggers
 
   provisioner "local-exec" {
     command = <<EOT
