@@ -24,7 +24,7 @@ variable "name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format 2.4.1"
+  description = "The Kosli cli version, should be set in format 2.5.0"
 }
 
 variable "tags" {
@@ -81,6 +81,12 @@ variable "kosli_api_token_ssm_parameter_name" {
   default     = "kosli_api_token"
 }
 
+variable "create_default_lambda_eventbridge_rule" {
+  description = "Controls whether the module should create the default eventbridge rule to trigger the Reporter lambda. The default rule is configured to trigger Reporter on every change in any lambda function in your AWS region."
+  type        = bool
+  default     = true
+}
+
 variable "use_custom_eventbridge_pattern" {
   description = "Controls whether to provide custom pattern for the eventbridge rule, that triggers the Reporter Lambda Function. Set to true if you need to provide own event pattern."
   type        = bool
@@ -97,4 +103,16 @@ variable "always_download_kosli_bin" {
   description = "Controls whether to download Kosli bin on every terraform run for preparing the Reporter lambda package. Could be useful in CI."
   type        = bool
   default     = false
+}
+
+variable "reporter_releases_host" {
+  type        = string
+  default     = "https://reporter-releases.kosli.com"
+  description = "Where to download the Reporter Lambda package."
+}
+
+variable "lambda_timeout" {
+  type        = number
+  default     = 60
+  description = "The amount of time Reporter Lambda Function has to run in seconds."
 }

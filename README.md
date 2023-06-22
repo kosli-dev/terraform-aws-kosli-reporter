@@ -9,11 +9,11 @@ Terraform module to deploy the Kosli reporter - AWS lambda function that sends r
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name                       = "production_app"
   kosli_environment_type     = "ecs"
-  kosli_cli_version          = "2.4.1"
+  kosli_cli_version          = "2.5.0"
   kosli_environment_name     = "production"
   kosli_org                  = "my-organisation"
   reported_aws_resource_name = "app-cluster"
@@ -26,11 +26,11 @@ Also it is possible to provide custom IAM role. You need to disable default role
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name                       = "staging_app"
   kosli_environment_type     = "s3"
-  kosli_cli_version          = "2.4.1"
+  kosli_cli_version          = "2.5.0"
   kosli_environment_name     = "staging"
   kosli_org                  = "my-organisation"
   reported_aws_resource_name = "my-s3-bucket"
@@ -63,11 +63,11 @@ resource "aws_iam_role" "this" {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name                              = "staging_app"
   kosli_environment_type            = "lambda"
-  kosli_cli_version                 = "2.4.1"
+  kosli_cli_version                 = "2.5.0"
   kosli_environment_name            = "staging"
   kosli_org                         = "my-organisation"
   reported_aws_resource_name        = "my-lambda-function" # use a comma-separated list of function names to report multiple functions

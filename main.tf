@@ -5,25 +5,21 @@ module "reporter_lambda" {
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
 
-  function_name = var.name
-  description   = "Send reports to the Kosli app"
-  handler       = "function.handler"
-  runtime       = "provided"
-
-  source_path = [
-    "${path.module}/src/bootstrap",
-    "${path.module}/src/function.sh",
-    "${local.kosli_src_path}/kosli"
-  ]
+  function_name          = var.name
+  description            = "Send reports to the Kosli app"
+  handler                = "function.handler"
+  runtime                = "provided"
+  local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
 
   role_name      = var.create_role ? var.name : null
-  timeout        = 30
-  create_package = true
+  timeout        = var.lambda_timeout
+  create_package = false
   publish        = true
   create_role    = var.create_role
   lambda_role    = var.create_role ? "" : var.role_arn
 
   environment_variables = {
+    KOSLI_COMMAND   = local.kosli_command
     KOSLI_HOST      = var.kosli_host
     KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
     KOSLI_ORG       = var.kosli_org
@@ -34,9 +30,20 @@ module "reporter_lambda" {
   cloudwatch_logs_retention_in_days = var.cloudwatch_logs_retention_in_days
 
   tags = var.tags
+}
 
-  depends_on = [
-    null_resource.download_and_unzip,
-    local_file.function
-  ]
+# Prepare Kolsi report command
+locals {
+  kosli_command_mandatory_parameter = {
+    s3     = " --bucket ${var.reported_aws_resource_name}"
+    ecs    = " --cluster ${var.reported_aws_resource_name}"
+    lambda = ""
+  }
+  kosli_command_optional_parameters = {
+    s3     = var.kosli_command_optional_parameters
+    ecs    = var.kosli_command_optional_parameters
+    lambda = var.reported_aws_resource_name == "" ? var.kosli_command_optional_parameters : "--function-names ${var.reported_aws_resource_name} ${var.kosli_command_optional_parameters}"
+  }
+  kosli_command_mandatory = "kosli snapshot ${var.kosli_environment_type} ${var.kosli_environment_name}${local.kosli_command_mandatory_parameter[var.kosli_environment_type]}"
+  kosli_command           = local.kosli_command_optional_parameters == "" ? local.kosli_command_mandatory : "${local.kosli_command_mandatory} ${local.kosli_command_optional_parameters[var.kosli_environment_type]}"
 }

@@ -23,12 +23,11 @@ resource "random_pet" "this" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name                       = local.reporter_name
   kosli_environment_type     = "lambda"
-  kosli_cli_version          = "2.4.1"
+  kosli_cli_version          = "2.5.0"
   kosli_environment_name     = "staging"
   kosli_org                  = "my_org"
-  reported_aws_resource_name = "my_lambda_function" # use a comma-separated list of function names to report multiple functions 
 }

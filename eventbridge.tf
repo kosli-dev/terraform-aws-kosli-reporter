@@ -40,25 +40,28 @@ resource "aws_cloudwatch_event_target" "ecs_task_updated" {
   target_id = "${var.name}-ecs-task-updated"
 }
 
-# Trigger reporter lambda right after reported lambda function is changed.
 # Create the default eventbridge pattern if custom one is not provided.
 locals {
-  lambda_event_pattern = !var.use_custom_eventbridge_pattern ? jsonencode({
+  lambda_event_pattern = !var.use_custom_eventbridge_pattern && var.create_default_lambda_eventbridge_rule ? jsonencode({
     source      = ["aws.lambda"]
     detail-type = ["AWS API Call via CloudTrail"]
     detail = {
       requestParameters = {
-        functionName = local.lambda_function_names_list
+        functionName = [{
+            prefix = ""
+        }]
       }
       responseElements = {
-        functionName = local.lambda_function_names_list
+        functionName = [{
+            prefix = ""
+        }]
       }
     }
   }) : var.custom_eventbridge_pattern
 }
 
 resource "aws_cloudwatch_event_rule" "lambda_function_version_published" {
-  count       = var.kosli_environment_type == "lambda" ? 1 : 0
+  count       = var.kosli_environment_type == "lambda" && (var.create_default_lambda_eventbridge_rule || var.use_custom_eventbridge_pattern) ? 1 : 0
   name        = "${var.name}-lambda-function-version-published"
   description = "Lambda function version has been published"
 
@@ -67,7 +70,7 @@ resource "aws_cloudwatch_event_rule" "lambda_function_version_published" {
 }
 
 resource "aws_cloudwatch_event_target" "lambda_function_version_published" {
-  count     = var.kosli_environment_type == "lambda" ? 1 : 0
+  count     = var.kosli_environment_type == "lambda" && (var.create_default_lambda_eventbridge_rule || var.use_custom_eventbridge_pattern) ? 1 : 0
   arn       = module.reporter_lambda.lambda_function_arn
   rule      = aws_cloudwatch_event_rule.lambda_function_version_published[0].name
   target_id = "${var.name}-lambda-function-version-published"
@@ -106,7 +109,7 @@ locals {
     source_arn = aws_cloudwatch_event_rule.ecs_task_updated[0].arn
   } } : {}
 
-  trigger_lambda_new_version_published = var.kosli_environment_type == "lambda" ? { AllowExecutionFromCloudWatchLambda = {
+  trigger_lambda_new_version_published = var.kosli_environment_type == "lambda" && (var.create_default_lambda_eventbridge_rule || var.use_custom_eventbridge_pattern) ? { AllowExecutionFromCloudWatchLambda = {
     principal  = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.lambda_function_version_published[0].arn
   } } : {}
