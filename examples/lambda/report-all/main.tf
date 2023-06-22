@@ -25,9 +25,9 @@ module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
   version = "0.4.0"
 
-  name                       = local.reporter_name
-  kosli_environment_type     = "lambda"
-  kosli_cli_version          = "2.5.0"
-  kosli_environment_name     = "staging"
-  kosli_org                  = "my_org"
+  name                   = local.reporter_name
+  kosli_environment_type = "lambda"
+  kosli_cli_version      = "2.5.0"
+  kosli_environment_name = "staging"
+  kosli_org              = "my_org"
 }

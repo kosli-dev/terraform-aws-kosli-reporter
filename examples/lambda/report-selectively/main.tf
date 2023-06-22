@@ -22,7 +22,7 @@ resource "random_pet" "this" {
 }
 
 variable "my_lambda_functions" {
-  type = string
+  type    = string
   default = "my_lambda_function1, my_lambda_function_name2"
 }
 
@@ -30,12 +30,12 @@ module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
   version = "0.4.0"
 
-  name                       = local.reporter_name
-  kosli_environment_type     = "lambda"
-  kosli_cli_version          = "2.5.0"
-  kosli_environment_name     = "staging"
-  kosli_org                  = "my_org"
-  reported_aws_resource_name = var.my_lambda_functions
+  name                           = local.reporter_name
+  kosli_environment_type         = "lambda"
+  kosli_cli_version              = "2.5.0"
+  kosli_environment_name         = "staging"
+  kosli_org                      = "my_org"
+  reported_aws_resource_name     = var.my_lambda_functions
   use_custom_eventbridge_pattern = true
   custom_eventbridge_pattern     = local.custom_event_pattern
 }

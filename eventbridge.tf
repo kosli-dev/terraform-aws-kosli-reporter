@@ -48,12 +48,12 @@ locals {
     detail = {
       requestParameters = {
         functionName = [{
-            prefix = ""
+          prefix = ""
         }]
       }
       responseElements = {
         functionName = [{
-            prefix = ""
+          prefix = ""
         }]
       }
     }
