@@ -1,9 +1,9 @@
 # Kosli Reporter
-Terraform module to deploy the Kosli reporter - AWS lambda function that sends reports to the Kosli. At the moment module supports only reports of ECS and Lambda environment types.
+Terraform module to deploy the Kosli environment reporter as an AWS lambda function. At the moment, the module only supports reporting of ECS and Lambda environment types.
 
-## Set up Kolsi API token
-1. Log in to the https://app.kosli.com/, go to your profile, copy the `API Key` value.
-2. Put the Kosli API key value to the AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter name, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
+## Set up Kosli API token
+1. Log in to https://app.kosli.com/, go to your profile, copy the `API Key` value.
+2. Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
 
 ## Usage
 ```
@@ -13,7 +13,7 @@ module "lambda_reporter" {
 
   name                       = "production_app"
   kosli_environment_type     = "ecs"
-  kosli_cli_version          = "2.5.0"
+  kosli_cli_version          = "2.6.0"
   kosli_environment_name     = "production"
   kosli_org                  = "my-organisation"
   reported_aws_resource_name = "app-cluster"
