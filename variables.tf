@@ -42,7 +42,7 @@ variable "kosli_host" {
 variable "reported_aws_resource_name" {
   type        = string
   default     = ""
-  description = "The name of the reported AWS resource name. For the ECS environment - the name of the ECS cluster, S3 environment - S3 bucket name, Lambda environment - Lambda function name."
+  description = "The name of the reported AWS resource name. For the ECS environment - the name of the ECS cluster, S3 environment - S3 bucket name, Lambda environment - Lambda function name(s)."
 }
 
 variable "kosli_command_optional_parameters" {

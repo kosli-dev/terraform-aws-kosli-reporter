@@ -1,27 +1,24 @@
 # Kosli Reporter
 Terraform module to deploy the Kosli environment reporter as an AWS lambda function. At the moment, the module only supports reporting of ECS, Lambda and S3 environment types.
 
-## Set up Kosli API token
-1. Log in to https://app.kosli.com/, go to your profile, copy the `API Key` value.
-2. Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
+## In order to deploy the Kosli reporter module, you will need to do the following:
 
-## Usage
-```
-module "lambda_reporter" {
-  source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.4.0"
+1. Set up Kolsi API token:
+  - Log in to the https://app.kosli.com/, go to your profile, copy the `API Key` value.
+  - Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
 
-  name                       = "production_app"
-  kosli_environment_type     = "ecs"
-  kosli_cli_version          = "2.6.0"
-  kosli_environment_name     = "production"
-  kosli_org                  = "my-organisation"
-  reported_aws_resource_name = "app-cluster"
-}
-```
+2. Install Terraform: If you haven't already, you'll need to install Terraform on your local machine. You can download Terraform from the [official website](https://www.terraform.io/downloads.html).
+
+3. Configure your AWS credentials: Terraform needs access to your AWS account to be able to manage your resources. You can set up your AWS credentials by following the instructions in the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
+
+4. Create a Terraform configuration: In order to use the Kosli reporter module, you'll need to create a Terraform configuration. Here are configuration examples that will track [ECS](./examples/ecs), [Lambda](./examples/lambda), [S3](./examples/s3) resources.
+
+5. Initialize and run Terraform: Once Terraform configuration is created, you'll need to initialize Terraform by running the `terraform init` command in the same directory as your configuration files. This will download the necessary modules and providers for your configuration. Then, you can run the `terraform apply` command to apply your configuration.
+
+6. To check Lambda reporter logs you can go to the AWS console -> Lambda service -> choose your lambda reporter function -> Monitor tab -> Logs tab.
 
 ## Set custom IAM role
-Also it is possible to provide custom IAM role. You need to disable default role creation by setting the parameter `create_role` to `false` and providing custom role ARN with parameter `role_arn`:
+It is possible to provide custom IAM role. In this case you need to disable default role creation by setting the parameter `create_role` to `false` and providing custom role ARN with parameter `role_arn`:
 
 ```
 module "lambda_reporter" {
