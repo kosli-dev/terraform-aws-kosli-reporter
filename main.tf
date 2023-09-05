@@ -8,7 +8,7 @@ module "reporter_lambda" {
   function_name          = var.name
   description            = "Send reports to the Kosli app"
   handler                = "function.handler"
-  runtime                = "provided"
+  runtime                = "provided.al2"
   local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
 
   role_name      = var.create_role ? var.name : null
