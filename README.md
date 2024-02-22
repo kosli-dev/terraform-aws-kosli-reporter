@@ -3,8 +3,8 @@ Terraform module to deploy the Kosli environment reporter as an AWS lambda funct
 
 ## In order to deploy the Kosli reporter module, you will need to do the following:
 
-1. Set up Kolsi API token:
-  - Log in to the https://app.kosli.com/, go to your profile, copy the `API Key` value.
+1. Set up Kosli API token:
+  - Login to Kosli and [generate a new service account and API key](https://docs.kosli.com/getting_started/service-accounts/)
   - Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
 
 2. Install Terraform: If you haven't already, you'll need to install Terraform on your local machine. You can download Terraform from the [official website](https://www.terraform.io/downloads.html).
