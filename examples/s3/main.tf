@@ -30,5 +30,6 @@ module "lambda_reporter" {
   kosli_cli_version          = "v2.7.8"
   kosli_environment_name     = "staging"
   kosli_org                  = "my_org"
+  # kosli_host                        = "https://app.kosli.com" # defaulted to app.kosli.com
   reported_aws_resource_name = "my_s3_bucket"
 }

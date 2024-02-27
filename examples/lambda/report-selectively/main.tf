@@ -35,6 +35,7 @@ module "lambda_reporter" {
   kosli_cli_version              = "v2.7.8"
   kosli_environment_name         = "staging"
   kosli_org                      = "my_org"
+  # kosli_host                        = "https://app.kosli.com" # defaulted to app.kosli.com
   reported_aws_resource_name     = var.my_lambda_functions
   use_custom_eventbridge_pattern = true
   custom_eventbridge_pattern     = local.custom_event_pattern
