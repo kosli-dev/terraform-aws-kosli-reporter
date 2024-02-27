@@ -30,6 +30,7 @@ module "lambda_reporter" {
   kosli_cli_version                 = "v2.7.8"
   kosli_environment_name            = "staging"
   kosli_org                         = "my_org"
+  # kosli_host                        = "https://app.kosli.com" # defaulted to app.kosli.com
   reported_aws_resource_name        = "my_ecs_cluster"
   kosli_command_optional_parameters = "-s my-service"
 }
