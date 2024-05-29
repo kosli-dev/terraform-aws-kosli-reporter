@@ -1,0 +1,1 @@
+This example deploys Kosli reporter to track only selected Lambda functions in your AWS region.

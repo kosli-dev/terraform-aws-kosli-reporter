@@ -1,1 +1,0 @@
-There are 2 Reporter configuration examples. [First](./report-all) one deploys Kosli Reporter to track all Lambda functions in your AWS region. [Second](./report-selectively) configuration demonstrates how you can select Lambda functions to track.
