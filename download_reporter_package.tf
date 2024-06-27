@@ -3,19 +3,14 @@ locals {
   downloaded  = "downloaded_package_${md5(local.package_url)}.zip"
 }
 
-resource "null_resource" "download_package" {
-  triggers = {
-    downloaded = local.downloaded
-  }
+resource "terraform_data" "download_package" {
+  input = local.downloaded
+
+  triggers_replace = [
+    local.downloaded
+  ]
 
   provisioner "local-exec" {
     command = "curl -L -o ${local.downloaded} ${local.package_url}"
-  }
-}
-
-data "null_data_source" "downloaded_package" {
-  inputs = {
-    id       = null_resource.download_package.id
-    filename = local.downloaded
   }
 }

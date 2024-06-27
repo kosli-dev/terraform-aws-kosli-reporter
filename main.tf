@@ -1,15 +1,16 @@
 module "reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "4.18.0"
+  version = "7.7.0"
 
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
 
-  function_name          = var.name
-  description            = "Send reports to the Kosli app"
-  handler                = "function.handler"
-  runtime                = "provided.al2"
-  local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
+  function_name = var.name
+  description   = "Send reports to the Kosli app"
+  handler       = "function.handler"
+  runtime       = "provided.al2"
+  # local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
+  local_existing_package = terraform_data.download_package.output
 
   role_name      = var.create_role ? var.name : null
   timeout        = var.lambda_timeout
