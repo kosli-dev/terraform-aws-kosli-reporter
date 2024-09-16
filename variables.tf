@@ -116,3 +116,9 @@ variable "lambda_timeout" {
   default     = 60
   description = "The amount of time Reporter Lambda Function has to run in seconds."
 }
+
+variable "lambda_description" {
+  type        = string
+  default     = "Send reports to the Kosli app"
+  description = "Lambda function description."
+}
