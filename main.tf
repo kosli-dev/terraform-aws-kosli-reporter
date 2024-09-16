@@ -6,7 +6,7 @@ module "reporter_lambda" {
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
 
   function_name = var.name
-  description   = "Send reports to the Kosli app"
+  description   = var.lambda_description
   handler       = "function.handler"
   runtime       = "provided.al2"
   # local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
