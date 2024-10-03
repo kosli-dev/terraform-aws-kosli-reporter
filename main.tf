@@ -12,12 +12,13 @@ module "reporter_lambda" {
   # local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
   local_existing_package = terraform_data.download_package.output
 
-  role_name      = var.create_role ? var.name : null
-  timeout        = var.lambda_timeout
-  create_package = false
-  publish        = true
-  create_role    = var.create_role
-  lambda_role    = var.create_role ? "" : var.role_arn
+  role_name                 = var.create_role ? var.name : null
+  role_permissions_boundary = var.role_permissions_boundary
+  timeout                   = var.lambda_timeout
+  create_package            = false
+  publish                   = true
+  create_role               = var.create_role
+  lambda_role               = var.create_role ? "" : var.role_arn
 
   environment_variables = {
     KOSLI_COMMAND   = local.kosli_command

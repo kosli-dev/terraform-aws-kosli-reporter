@@ -75,6 +75,12 @@ variable "role_arn" {
   default     = ""
 }
 
+variable "role_permissions_boundary" {
+  description = "The ARN of the policy that is used to set the permissions boundary for the IAM role used by Lambda Function"
+  type        = string
+  default     = null
+}
+
 variable "kosli_api_token_ssm_parameter_name" {
   description = "The name of the kosli_api_token SSM parameter name"
   type        = string
