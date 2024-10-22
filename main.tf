@@ -9,7 +9,6 @@ module "reporter_lambda" {
   description   = var.lambda_description
   handler       = "function.handler"
   runtime       = "provided.al2"
-  # local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
   local_existing_package = terraform_data.download_package.output
 
   role_name      = var.create_role ? var.name : null
@@ -37,12 +36,12 @@ module "reporter_lambda" {
 locals {
   kosli_command_mandatory_parameter = {
     s3     = " --bucket ${var.reported_aws_resource_name}"
-    ecs    = " --cluster ${var.reported_aws_resource_name}"
+    ecs    = ""
     lambda = ""
   }
   kosli_command_optional_parameters = {
     s3     = var.kosli_command_optional_parameters
-    ecs    = var.kosli_command_optional_parameters
+    ecs    = var.reported_aws_resource_name == "" ? var.kosli_command_optional_parameters : "--clusters ${var.reported_aws_resource_name} ${var.kosli_command_optional_parameters}"
     lambda = var.reported_aws_resource_name == "" ? var.kosli_command_optional_parameters : "--function-names ${var.reported_aws_resource_name} ${var.kosli_command_optional_parameters}"
   }
   kosli_command_mandatory = "kosli snapshot ${var.kosli_environment_type} ${var.kosli_environment_name}${local.kosli_command_mandatory_parameter[var.kosli_environment_type]}"
