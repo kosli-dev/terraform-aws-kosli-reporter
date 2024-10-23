@@ -23,11 +23,11 @@ It is possible to provide custom IAM role. In this case you need to disable defa
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.5.0"
+  version = "0.5.7"
 
   name                       = "staging_app"
   kosli_environment_type     = "s3"
-  kosli_cli_version          = "v2.7.8"
+  kosli_cli_version          = "v2.11.0"
   kosli_environment_name     = "staging"
   kosli_org                  = "my-organisation"
   # kosli_host                 = "https://app.kosli.com" # defaulted to app.kosli.com
@@ -61,11 +61,11 @@ resource "aws_iam_role" "this" {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.5.0"
+  version = "0.5.7"
 
   name                              = "staging_app"
   kosli_environment_type            = "lambda"
-  kosli_cli_version                 = "v2.7.8"
+  kosli_cli_version                 = "v2.11.0"
   kosli_environment_name            = "staging"
   kosli_org                         = "my-organisation"
   reported_aws_resource_name        = "my-lambda-function" # use a comma-separated list of function names to report multiple functions

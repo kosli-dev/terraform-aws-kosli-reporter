@@ -28,11 +28,11 @@ variable "my_lambda_functions" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.5.0"
+  version = "0.5.7"
 
   name                   = local.reporter_name
   kosli_environment_type = "lambda"
-  kosli_cli_version      = "v2.7.8"
+  kosli_cli_version      = "v2.11.0"
   kosli_environment_name = "staging"
   kosli_org              = "my_org"
   # kosli_host                        = "https://app.kosli.com" # defaulted to app.kosli.com
