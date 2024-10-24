@@ -4,7 +4,7 @@ on:
 #   repository_dispatch:
 #     types: [upload-package]
   push:
-    branches: [ master ]
+    branches: [ python-runtime ]
 
 jobs:
   upload-package:
