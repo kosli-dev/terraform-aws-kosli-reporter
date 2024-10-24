@@ -5,10 +5,10 @@ module "reporter_lambda" {
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
 
-  function_name = var.name
-  description   = var.lambda_description
-  handler       = "function.handler"
-  runtime       = "provided.al2"
+  function_name          = var.name
+  description            = var.lambda_description
+  handler                = "main.lambda_handler"
+  runtime                = "python3.11"
   local_existing_package = terraform_data.download_package.output
 
   role_name                 = var.create_role ? var.name : null
@@ -20,10 +20,10 @@ module "reporter_lambda" {
   lambda_role               = var.create_role ? "" : var.role_arn
 
   environment_variables = {
-    KOSLI_COMMAND   = local.kosli_command
-    KOSLI_HOST      = var.kosli_host
-    KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
-    KOSLI_ORG       = var.kosli_org
+    KOSLI_COMMAND                      = local.kosli_command
+    KOSLI_HOST                         = var.kosli_host
+    KOSLI_API_TOKEN_SSM_PARAMETER_NAME = var.kosli_api_token_ssm_parameter_name
+    KOSLI_ORG                          = var.kosli_org
   }
 
   allowed_triggers = local.allowed_triggers_combined
