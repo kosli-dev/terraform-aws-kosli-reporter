@@ -1,6 +1,5 @@
 locals {
-  # package_url = "${var.reporter_releases_host}/kosli_lambda_${var.kosli_cli_version}.zip"
-  package_url = "${var.reporter_releases_host}/kosli_lambda_${var.kosli_cli_version}_test.zip"
+  package_url = "${var.reporter_releases_host}/kosli_lambda_${var.kosli_cli_version}.zip"
   downloaded  = "downloaded_package_${md5(local.package_url)}.zip"
 }
 
