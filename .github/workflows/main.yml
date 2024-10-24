@@ -1,9 +1,10 @@
 name: upload-package
 
 on:
-  repository_dispatch:
-    types: [upload-package]
-
+#   repository_dispatch:
+#     types: [upload-package]
+  push:
+    branches: [ master ]
 
 jobs:
   upload-package:
@@ -27,24 +28,31 @@ jobs:
     - name: Upload Reporter lambda package
       id: upload-package
       env:
-        TAG: ${{ github.event.client_payload.kosli_cli_tag }}
+        # TAG: ${{ github.event.client_payload.kosli_cli_tag }}
+        TAG: v2.11.0
       run: |
         KOSLI_CLI_VERSION="${TAG:1}"
         echo "kosli_cli_version=$KOSLI_CLI_VERSION" >> $GITHUB_OUTPUT
         curl -Lo kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz https://github.com/kosli-dev/cli/releases/download/${TAG}/kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
         tar -xf kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz -C . && rm kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
-        chmod 755 deployment/reporter-lambda-src/*
         zip -j kosli_lambda_${KOSLI_CLI_VERSION}.zip deployment/reporter-lambda-src/* kosli
-        aws s3 cp kosli_lambda_${KOSLI_CLI_VERSION}.zip s3://${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}/kosli_lambda_${TAG}.zip
+        aws s3 cp kosli_lambda_${KOSLI_CLI_VERSION}.zip s3://${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}/kosli_lambda_${TAG}_test.zip
+      # run: |
+      #   KOSLI_CLI_VERSION="${TAG:1}"
+      #   echo "kosli_cli_version=$KOSLI_CLI_VERSION" >> $GITHUB_OUTPUT
+      #   curl -Lo kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz https://github.com/kosli-dev/cli/releases/download/${TAG}/kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
+      #   tar -xf kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz -C . && rm kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
+      #   zip -j kosli_lambda_${KOSLI_CLI_VERSION}.zip deployment/reporter-lambda-src/* kosli
+      #   aws s3 cp kosli_lambda_${KOSLI_CLI_VERSION}.zip s3://${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}/kosli_lambda_${TAG}.zip
 
-  deploy-reporters:
-    runs-on: ubuntu-20.04
-    needs: [upload-package]
-    steps:
-      - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.KOSLI_REPORTER_REPO_ACCESS_TOKEN }}
-          repository: kosli-dev/kosli-reporter
-          event-type: deploy-reporter
-          client-payload: '{"kosli_cli_version": "${{ needs.upload-package.outputs.kosli_cli_version }}"}'
+  # deploy-reporters:
+  #   runs-on: ubuntu-20.04
+  #   needs: [upload-package]
+  #   steps:
+  #     - name: Repository Dispatch
+  #       uses: peter-evans/repository-dispatch@v2
+  #       with:
+  #         token: ${{ secrets.KOSLI_REPORTER_REPO_ACCESS_TOKEN }}
+  #         repository: kosli-dev/kosli-reporter
+  #         event-type: deploy-reporter
+  #         client-payload: '{"kosli_cli_version": "${{ needs.upload-package.outputs.kosli_cli_version }}"}'
