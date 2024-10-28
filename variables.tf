@@ -81,6 +81,18 @@ variable "role_permissions_boundary" {
   default     = null
 }
 
+variable "role_path" {
+  description = "Path of IAM role to use for Lambda Function"
+  type        = string
+  default     = null
+}
+
+variable "policy_path" {
+  description = "Path of policies to that should be added to IAM role for Lambda Function"
+  type        = string
+  default     = null
+}
+
 variable "kosli_api_token_ssm_parameter_name" {
   description = "The name of the kosli_api_token SSM parameter name"
   type        = string
