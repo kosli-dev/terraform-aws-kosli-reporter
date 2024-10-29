@@ -46,7 +46,6 @@ data "aws_iam_policy_document" "s3_read_allow" {
     sid    = "S3Read"
     effect = "Allow"
     actions = [
-      "s3:ListObjects",
       "s3:ListBucket",
       "S3:GetObject"
     ]
