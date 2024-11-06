@@ -21,26 +21,45 @@ except Exception as e:
     logger.error(f"Error retrieving SSM parameter: {e}")
 
 def lambda_handler(event, context):
-    kosli_command = os.getenv('KOSLI_COMMAND')
-
-    split_kosli_command = kosli_command.split()
-    split_kosli_command[0] = f'./{split_kosli_command[0]}'
-
-    try:
-        result = subprocess.run(split_kosli_command + ['--api-token', kosli_api_token], 
-                                stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE)
-
-        # Log stdout and stderr
-        logger.info(result.stdout.decode('utf-8'))
-        logger.error(result.stderr.decode('utf-8'))
-
-        # Check if the command was successful
-        if result.returncode != 0:
-            return {"statusCode": 500, "body": f"Error running kosli command: {result.stderr.decode('utf-8')}"}
-        
-        return {"statusCode": 200, "body": f"Kosli command executed successfully: {result.stdout.decode('utf-8')}"}
+    kosli_commands = os.getenv('KOSLI_COMMANDS')
     
-    except Exception as e:
-        logger.error(f"Error running kosli command: {e}")
-        return {"statusCode": 500, "body": f"Error running kosli command: {e}"}
+    if not kosli_commands:
+        logger.error("No commands found in environment variable KOSLI_COMMANDS")
+        return {"statusCode": 400, "body": "No commands to execute"}
+
+    # Split the commands into a list
+    command_list = kosli_commands.split(';')
+    execution_results = []
+
+    # Execute each command
+    for kosli_command in command_list:
+        split_kosli_command = kosli_command.strip().split()
+        split_kosli_command[0] = f'./{split_kosli_command[0]}'
+
+        try:
+            result = subprocess.run(
+                split_kosli_command + ['--api-token', kosli_api_token],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+
+            # Log stdout and stderr
+            logger.info(f"Command: {kosli_command}")
+            logger.info(result.stdout.decode('utf-8'))
+            logger.error(result.stderr.decode('utf-8'))
+
+            # Append success or failure to results list
+            if result.returncode != 0:
+                error_message = f"Error running command: {kosli_command}, stderr: {result.stderr.decode('utf-8')}"
+                logger.error(error_message)
+                execution_results.append({"command": kosli_command, "status": "failed", "error": error_message})
+            else:
+                execution_results.append({"command": kosli_command, "status": "success", "output": result.stdout.decode('utf-8')})
+
+        except Exception as e:
+            error_message = f"Exception running command: {kosli_command}, Error: {e}"
+            logger.error(error_message)
+            execution_results.append({"command": kosli_command, "status": "failed", "error": error_message})
+
+    # Return a summary of all command executions
+    return {"statusCode": 200, "body": execution_results}

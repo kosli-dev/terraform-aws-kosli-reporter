@@ -20,7 +20,7 @@ module "reporter_lambda" {
   lambda_role               = var.create_role ? "" : var.role_arn
 
   environment_variables = {
-    KOSLI_COMMAND                      = local.kosli_command
+    KOSLI_COMMANDS                     = join(";", local.kosli_commands)
     KOSLI_HOST                         = var.kosli_host
     KOSLI_API_TOKEN_SSM_PARAMETER_NAME = var.kosli_api_token_ssm_parameter_name
     KOSLI_ORG                          = var.kosli_org
@@ -33,18 +33,17 @@ module "reporter_lambda" {
   tags = var.tags
 }
 
-# Prepare Kolsi report command
 locals {
-  kosli_command_mandatory_parameter = {
-    s3     = " --bucket ${var.reported_aws_resource_name}"
-    ecs    = ""
-    lambda = ""
-  }
-  kosli_command_optional_parameters = {
-    s3     = var.kosli_command_optional_parameters
-    ecs    = var.reported_aws_resource_name == "" ? var.kosli_command_optional_parameters : "--clusters ${var.reported_aws_resource_name} ${var.kosli_command_optional_parameters}"
-    lambda = var.reported_aws_resource_name == "" ? var.kosli_command_optional_parameters : "--function-names ${var.reported_aws_resource_name} ${var.kosli_command_optional_parameters}"
-  }
-  kosli_command_mandatory = "kosli snapshot ${var.kosli_environment_type} ${var.kosli_environment_name}${local.kosli_command_mandatory_parameter[var.kosli_environment_type]}"
-  kosli_command           = local.kosli_command_optional_parameters == "" ? local.kosli_command_mandatory : "${local.kosli_command_mandatory} ${local.kosli_command_optional_parameters[var.kosli_environment_type]}"
+  kosli_commands = [for env in var.environments : format(
+    "kosli snapshot %s %s %s %s",
+    env.kosli_environment_type,
+    env.kosli_environment_name,
+    (
+      env.kosli_environment_type == "s3" ? format("--bucket %s", env.reported_aws_resource_name) :
+      env.kosli_environment_type == "ecs" && env.reported_aws_resource_name != null ? format("--clusters %s", env.reported_aws_resource_name) :
+      env.kosli_environment_type == "lambda" && env.reported_aws_resource_name != null ? format("--function-names %s", env.reported_aws_resource_name) :
+      ""
+    ),
+    env.kosli_command_optional_parameters != null ? env.kosli_command_optional_parameters : ""
+  )]
 }

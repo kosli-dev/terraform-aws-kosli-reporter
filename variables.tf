@@ -1,15 +1,20 @@
 variable "kosli_environment_type" {
   type        = string
   description = "The type of environment. Valid values are: ecs, lambda, s3."
-  validation {
-    condition     = contains(["ecs", "lambda", "s3"], var.kosli_environment_type)
-    error_message = "Wrong kosli_environment_type value. The value must be the one of: ecs, lambda, s3."
-  }
+  default     = ""
+  # validation {
+  #   condition     = contains(["ecs", "lambda", "s3"], var.kosli_environment_type)
+  #   error_message = "Wrong kosli_environment_type value. The value must be the one of: ecs, lambda, s3."
+  # }
 }
 
-variable "kosli_environment_name" {
-  type        = string
-  description = "The name of the Kosli environment."
+variable "environments" {
+  type = list(object({
+    kosli_environment_name            = string
+    kosli_environment_type            = string
+    reported_aws_resource_name        = optional(string)
+    kosli_command_optional_parameters = optional(string)
+  }))
 }
 
 variable "kosli_org" {
