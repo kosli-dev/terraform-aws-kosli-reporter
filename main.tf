@@ -47,3 +47,10 @@ locals {
     env.kosli_command_optional_parameters != null ? env.kosli_command_optional_parameters : ""
   )]
 }
+
+locals {
+  to_be_reported_ecs      = anytrue([for env in var.environments : env.kosli_environment_type == "ecs"])
+  to_be_reported_lambda   = anytrue([for env in var.environments : env.kosli_environment_type == "lambda"])
+  to_be_reported_s3       = anytrue([for env in var.environments : env.kosli_environment_type == "s3"])
+  reported_s3_bucket_name = [for env in var.environments : env.reported_aws_resource_name if env.kosli_environment_type == "s3"][0]
+}

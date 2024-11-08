@@ -1,17 +1,8 @@
-variable "kosli_environment_type" {
-  type        = string
-  description = "The type of environment. Valid values are: ecs, lambda, s3."
-  default     = ""
-  # validation {
-  #   condition     = contains(["ecs", "lambda", "s3"], var.kosli_environment_type)
-  #   error_message = "Wrong kosli_environment_type value. The value must be the one of: ecs, lambda, s3."
-  # }
-}
-
 variable "environments" {
+  description = "The valid values for the kosli_environment_type are: ecs, lambda, s3."
   type = list(object({
     kosli_environment_name            = string
-    kosli_environment_type            = string
+    kosli_environment_type            = string # ecs, lambda or s3
     reported_aws_resource_name        = optional(string)
     kosli_command_optional_parameters = optional(string)
   }))
@@ -92,8 +83,8 @@ variable "kosli_api_token_ssm_parameter_name" {
   default     = "kosli_api_token"
 }
 
-variable "create_default_lambda_eventbridge_rule" {
-  description = "Controls whether the module should create the default eventbridge rule to trigger the Reporter lambda. The default rule is configured to trigger Reporter on every change in any lambda function in your AWS region."
+variable "create_default_eventbridge_rules" {
+  description = "Controls whether the module should create the default eventbridge rules to trigger the Reporter lambda. There is a rule per environment type - ECS, Lambda and S3"
   type        = bool
   default     = true
 }

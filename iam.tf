@@ -1,12 +1,5 @@
-locals {
-  ecs_to_be_reported      = anytrue([for env in var.environments : env.kosli_environment_type == "ecs"])
-  lambda_to_be_reported   = anytrue([for env in var.environments : env.kosli_environment_type == "lambda"])
-  s3_to_be_reported       = anytrue([for env in var.environments : env.kosli_environment_type == "s3"])
-  reported_s3_bucket_name = [for env in var.environments : env.reported_aws_resource_name if env.kosli_environment_type == "s3"][0]
-}
-
 data "aws_iam_policy_document" "ecs_read_allow" {
-  count = var.create_role && local.ecs_to_be_reported ? 1 : 0
+  count = var.create_role && local.to_be_reported_ecs ? 1 : 0
   statement {
     sid    = "ECSList"
     effect = "Allow"
@@ -35,7 +28,7 @@ data "aws_iam_policy_document" "ecs_read_allow" {
 }
 
 data "aws_iam_policy_document" "lambda_read_allow" {
-  count = var.create_role && local.lambda_to_be_reported ? 1 : 0
+  count = var.create_role && local.to_be_reported_lambda ? 1 : 0
   statement {
     sid    = "LambdaRead"
     effect = "Allow"
@@ -48,7 +41,7 @@ data "aws_iam_policy_document" "lambda_read_allow" {
 }
 
 data "aws_iam_policy_document" "s3_read_allow" {
-  count = var.create_role && local.s3_to_be_reported ? 1 : 0
+  count = var.create_role && local.to_be_reported_s3 ? 1 : 0
   statement {
     sid    = "S3Read"
     effect = "Allow"
