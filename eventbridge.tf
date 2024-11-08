@@ -83,7 +83,7 @@ resource "aws_cloudwatch_event_rule" "s3_configuration_updated" {
 
   event_pattern = jsonencode({
     source    = ["aws.s3"]
-    resources = ["arn:aws:s3:::${local.reported_s3_bucket_name}"]
+    resources = ["arn:aws:s3:::*"]
   })
   tags = var.tags
 }
@@ -146,9 +146,9 @@ locals {
   } : {}
 
   allowed_triggers_combined = merge(
-    local.trigger_cron, 
-    local.trigger_ecs_task_changed, 
-    local.trigger_lambda_new_version_published, 
+    local.trigger_cron,
+    local.trigger_ecs_task_changed,
+    local.trigger_lambda_new_version_published,
     local.trigger_s3_configuration_changed,
     local.trigger_custom
   )

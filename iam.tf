@@ -51,8 +51,8 @@ data "aws_iam_policy_document" "s3_read_allow" {
       "S3:GetObject"
     ]
     resources = [
-      "arn:aws:s3:::${local.reported_s3_bucket_name}/*",
-      "arn:aws:s3:::${local.reported_s3_bucket_name}"
+      "arn:aws:s3:::*/*",
+      "arn:aws:s3:::*"
     ]
   }
 }
