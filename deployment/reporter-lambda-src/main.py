@@ -31,6 +31,10 @@ def lambda_handler(event, context):
     command_list = kosli_commands.split(';')
     execution_results = []
 
+    # Set up the environment for subprocess
+    env = os.environ.copy()
+    env['KOSLI_API_TOKEN'] = kosli_api_token
+
     # Execute each command
     for kosli_command in command_list:
         split_kosli_command = kosli_command.strip().split()
@@ -38,7 +42,8 @@ def lambda_handler(event, context):
 
         try:
             result = subprocess.run(
-                split_kosli_command + ['--api-token', kosli_api_token],
+                split_kosli_command,
+                env=env,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
