@@ -17,23 +17,58 @@ Terraform module to deploy the Kosli environment reporter as an AWS lambda funct
 
 6. To check Lambda reporter logs you can go to the AWS console -> Lambda service -> choose your lambda reporter function -> Monitor tab -> Logs tab.
 
+## Report multiple environments
+It is possible to track multiple environments with a single Kosli reporter.
+
+```
+module "lambda_reporter" {
+  source  = "kosli-dev/kosli-reporter/aws"
+  version = "0.7.0"
+
+  name              = "kosli-reporter"
+  kosli_cli_version = "v2.14.0"
+  kosli_org         = "my-organisation"
+  # kosli_host        = "https://app.kosli.com" # defaulted to app.kosli.com
+  environments = [
+    {
+      kosli_environment_name = "staging-ecs"
+      kosli_environment_type = "ecs"
+    },
+    {
+      kosli_environment_name     = "staging-s3"
+      kosli_environment_type     = "s3"
+      reported_aws_resource_name = "my-bucket"
+    },
+    {
+      kosli_environment_name = "staging-lambda"
+      kosli_environment_type = "lambda"
+    }
+  ]
+}
+```
+
+
 ## Set custom IAM role
 It is possible to provide custom IAM role. In this case you need to disable default role creation by setting the parameter `create_role` to `false` and providing custom role ARN with parameter `role_arn`:
 
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.5.7"
+  version = "0.7.0"
 
-  name                       = "staging_app"
-  kosli_environment_type     = "s3"
-  kosli_cli_version          = "v2.11.0"
-  kosli_environment_name     = "staging"
+  name                       = "kosli-reporter"
+  kosli_cli_version          = "v2.14.0"
   kosli_org                  = "my-organisation"
   # kosli_host                 = "https://app.kosli.com" # defaulted to app.kosli.com
-  reported_aws_resource_name = "my-s3-bucket"
   role_arn                   = aws_iam_role.this.arn
   create_role                = false
+  environments = [
+    {
+      kosli_environment_name     = "staging-s3"
+      kosli_environment_type     = "s3"
+      reported_aws_resource_name = "my-s3-bucket"
+    }
+  ]
 }
 
 resource "aws_iam_role" "this" {
@@ -54,25 +89,83 @@ resource "aws_iam_role" "this" {
 }
 ```
 
+## Set custom Eventbridge rule
+You can disable the creation of default EventBridge rules by setting the `create_default_eventbridge_rules` parameter to `false`. To use a custom EventBridge rule, set the `use_custom_eventbridge_pattern` parameter to `true` and provide a value for the `custom_eventbridge_pattern` parameter. 
+This example demonstrates how to trigger the Kosli reporter immediately after any of the reported functions change.
+
+```
+variable "my_lambda_functions" {
+  type    = string
+  default = "my_lambda_function1,my_lambda_function2"
+}
+
+module "lambda_reporter" {
+  source  = "kosli-dev/kosli-reporter/aws"
+  version = "0.7.0"
+
+  name                             = local.reporter_name
+  kosli_cli_version                = "v2.14.0"
+  kosli_org                        = "my-organisation"
+  # kosli_host                       = "https://app.kosli.com" # defaulted to app.kosli.com
+  create_default_eventbridge_rules = false
+  use_custom_eventbridge_pattern   = true
+  custom_eventbridge_pattern       = local.custom_event_pattern
+  
+  environments = [
+    {
+      kosli_environment_type     = "lambda"
+      kosli_environment_name     = "staging"
+      reported_aws_resource_name = var.my_lambda_functions
+    }
+  ]
+}
+
+locals {
+  lambda_function_names_list = split(",", var.my_lambda_functions)
+
+  custom_event_pattern = jsonencode({
+    source      = ["aws.lambda"]
+    detail-type = ["AWS API Call via CloudTrail"]
+    detail = {
+      requestParameters = {
+        functionName = local.lambda_function_names_list
+      }
+      responseElements = {
+        functionName = local.lambda_function_names_list
+      }
+    }
+  })
+}
+```
+
 ## Kosli report command
-- The Kosli cli report command that is executed inside the Reporter Lambda function can be obtained by accessing `kosli_command` module output. 
+- The Kosli cli report commands that are executed inside the Reporter Lambda function can be obtained by accessing `kosli_commands` module output. 
 - Optional Kosli cli parameters can be added to the command with the `kosli_command_optional_parameters` module parameter.
 
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.5.7"
+  version = "0.7.0"
 
-  name                              = "staging_app"
-  kosli_environment_type            = "lambda"
-  kosli_cli_version                 = "v2.11.0"
-  kosli_environment_name            = "staging"
-  kosli_org                         = "my-organisation"
-  reported_aws_resource_name        = "my-lambda-function" # use a comma-separated list of function names to report multiple functions
+  name                   = "kosli-reporter"
+  kosli_cli_version      = "v2.14.0"
+  kosli_org              = "my-organisation"
+  environments = [
+    {
+      kosli_environment_name            = "staging-ecs"
+      kosli_environment_type            = "ecs"
+      kosli_command_optional_parameters = "--exclude another_ecs_cluster" # Exclude cluster with the name "another_ecs_cluster".
+    },
+    {
+      kosli_environment_name     = "staging-lambda"
+      kosli_environment_type     = "lambda"
+      reported_aws_resource_name = "my-lambda-function" # use a comma-separated list of function names to report multiple functions
+    }
+  ]
 }
 
-output "kosli_command" {
-  value = module.lambda_reporter.kosli_command
+output "kosli_commands" {
+  value = module.lambda_reporter.kosli_commands
 }
 ```
 
@@ -80,5 +173,9 @@ Terraform output:
 ```
 Outputs:
 
-kosli_command = "kosli snapshot lambda staging --function-names my-lambda-function"
+kosli_commands = [
+  "kosli snapshot ecs staging-ecs --exclude another_ecs_cluster",
+  "kosli snapshot lambda staging-lambda --function-names my-lambda-function"
+
+]
 ```

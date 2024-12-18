@@ -23,22 +23,28 @@ resource "random_pet" "this" {
 
 variable "my_lambda_functions" {
   type    = string
-  default = "my_lambda_function1, my_lambda_function_name2"
+  default = "my_lambda_function1,my_lambda_function2"
 }
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.5.7"
+  version = "0.7.0"
 
-  name                   = local.reporter_name
-  kosli_environment_type = "lambda"
-  kosli_cli_version      = "v2.11.0"
-  kosli_environment_name = "staging"
-  kosli_org              = "my_org"
-  # kosli_host                        = "https://app.kosli.com" # defaulted to app.kosli.com
-  reported_aws_resource_name     = var.my_lambda_functions
-  use_custom_eventbridge_pattern = true
-  custom_eventbridge_pattern     = local.custom_event_pattern
+  name              = local.reporter_name
+  kosli_cli_version = "v2.14.0"
+  kosli_org         = "my_org"
+  # kosli_host        = "https://app.kosli.com" # defaulted to app.kosli.com
+  create_default_eventbridge_rules = false
+  use_custom_eventbridge_pattern   = true
+  custom_eventbridge_pattern       = local.custom_event_pattern
+
+  environments = [
+    {
+      kosli_environment_type     = "lambda"  # Mandatory parameter
+      kosli_environment_name     = "staging" # Mandatory parameter
+      reported_aws_resource_name = var.my_lambda_functions
+    }
+  ]
 }
 
 locals {

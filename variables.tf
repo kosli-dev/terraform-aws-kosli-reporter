@@ -1,10 +1,10 @@
 variable "environments" {
-  description = "The valid values for the kosli_environment_type are: ecs, lambda, s3."
+  description = "A list of maps that represents the environments to be reported to Kosli."
   type = list(object({
     kosli_environment_name            = string
-    kosli_environment_type            = string # ecs, lambda or s3
-    reported_aws_resource_name        = optional(string)
-    kosli_command_optional_parameters = optional(string)
+    kosli_environment_type            = string           # ecs, lambda or s3
+    reported_aws_resource_name        = optional(string) # The name of the reported AWS resource name(s). For the ECS environment, this refers to the name(s) of the ECS cluster; for the S3 environment, the S3 bucket name; and for the Lambda environment, the Lambda function name(s).
+    kosli_command_optional_parameters = optional(string) # The optional parameters to add to the kosli report command
   }))
 }
 
@@ -20,7 +20,7 @@ variable "name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format v2.5.0"
+  description = "The Kosli cli version, should be set in format v2.14.0"
 }
 
 variable "tags" {
@@ -33,18 +33,6 @@ variable "kosli_host" {
   type        = string
   default     = "https://app.kosli.com"
   description = "The Kosli endpoint."
-}
-
-variable "reported_aws_resource_name" {
-  type        = string
-  default     = ""
-  description = "The name of the reported AWS resource name. For the ECS environment - the name of the ECS cluster, S3 environment - S3 bucket name, Lambda environment - Lambda function name(s)."
-}
-
-variable "kosli_command_optional_parameters" {
-  type        = string
-  default     = ""
-  description = "The optional parameters to add to the kosli report command, for example when reporting ECS environment type it could be '-s my-service'."
 }
 
 variable "cloudwatch_logs_retention_in_days" {

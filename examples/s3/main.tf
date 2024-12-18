@@ -23,13 +23,18 @@ resource "random_pet" "this" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.5.7"
+  version = "0.7.0"
 
-  name                   = local.reporter_name
-  kosli_environment_type = "s3"
-  kosli_cli_version      = "v2.11.0"
-  kosli_environment_name = "staging"
-  kosli_org              = "my_org"
-  # kosli_host                        = "https://app.kosli.com" # defaulted to app.kosli.com
-  reported_aws_resource_name = "my_s3_bucket"
+  name              = local.reporter_name
+  kosli_cli_version = "v2.14.0"
+  kosli_org         = "my_org"
+  # kosli_host        = "https://app.kosli.com" # defaulted to app.kosli.com
+
+  environments = [
+    {
+      kosli_environment_type     = "s3"           # Mandatory parameter
+      kosli_environment_name     = "staging"      # Mandatory parameter
+      reported_aws_resource_name = "my_s3_bucket" # Mandatory parameter
+    }
+  ]
 }

@@ -1,1 +1,1 @@
-This example deploys Kosli reporter to track only selected Lambda functions in your AWS region.
+This example deploys the Kosli reporter to track only selected Lambda functions. The EventBridge rule is configured to trigger the reporter only when a reported function changes.

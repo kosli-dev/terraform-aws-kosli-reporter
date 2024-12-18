@@ -35,22 +35,21 @@ module "reporter_lambda" {
 
 locals {
   kosli_commands = [for env in var.environments : format(
-    "kosli snapshot %s %s %s %s",
+    "kosli snapshot %s %s%s%s",
     env.kosli_environment_type,
     env.kosli_environment_name,
     (
-      env.kosli_environment_type == "s3" ? format("--bucket %s", env.reported_aws_resource_name) :
-      env.kosli_environment_type == "ecs" && env.reported_aws_resource_name != null ? format("--clusters %s", env.reported_aws_resource_name) :
-      env.kosli_environment_type == "lambda" && env.reported_aws_resource_name != null ? format("--function-names %s", env.reported_aws_resource_name) :
+      env.kosli_environment_type == "s3" ? format(" --bucket %s", env.reported_aws_resource_name) :
+      env.kosli_environment_type == "ecs" && env.reported_aws_resource_name != null ? format(" --clusters %s", env.reported_aws_resource_name) :
+      env.kosli_environment_type == "lambda" && env.reported_aws_resource_name != null ? format(" --function-names %s", env.reported_aws_resource_name) :
       ""
     ),
-    env.kosli_command_optional_parameters != null ? env.kosli_command_optional_parameters : ""
+    env.kosli_command_optional_parameters != null ? " ${env.kosli_command_optional_parameters}" : ""
   )]
 }
 
 locals {
-  to_be_reported_ecs      = anytrue([for env in var.environments : env.kosli_environment_type == "ecs"])
-  to_be_reported_lambda   = anytrue([for env in var.environments : env.kosli_environment_type == "lambda"])
-  to_be_reported_s3       = anytrue([for env in var.environments : env.kosli_environment_type == "s3"])
-  reported_s3_bucket_name = [for env in var.environments : env.reported_aws_resource_name if env.kosli_environment_type == "s3"][0]
+  to_be_reported_ecs    = anytrue([for env in var.environments : env.kosli_environment_type == "ecs"])
+  to_be_reported_lambda = anytrue([for env in var.environments : env.kosli_environment_type == "lambda"])
+  to_be_reported_s3     = anytrue([for env in var.environments : env.kosli_environment_type == "s3"])
 }
