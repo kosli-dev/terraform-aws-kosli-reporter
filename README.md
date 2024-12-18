@@ -89,9 +89,12 @@ resource "aws_iam_role" "this" {
 }
 ```
 
-## Set custom Eventbridge rule
-You can disable the creation of default EventBridge rules by setting the `create_default_eventbridge_rules` parameter to `false`. To use a custom EventBridge rule, set the `use_custom_eventbridge_pattern` parameter to `true` and provide a value for the `custom_eventbridge_pattern` parameter. 
-This example demonstrates how to trigger the Kosli reporter immediately after any of the reported functions change.
+## Kosli reporter triggers
+The Kosli reporter sends reports to Kosli every minute by default. You can customize the schedule using the `schedule_expression` parameter.
+
+If you need to send reports more frequently, you can enable the creation of default EventBridge rules by setting the `create_default_eventbridge_rules` parameter to `true`. These default rules capture any changes to *any resource of the specified type* in the AWS region. For example, if you are tracking a single S3 bucket, the default rule will trigger the Kosli reporter whenever any S3 bucket in the region changes. This behavior might result in overly frequent triggers, making custom EventBridge rules a better alternative in some cases.
+
+To use a custom EventBridge rule, set the `use_custom_eventbridge_pattern` parameter to `true` and specify the desired rule using the `custom_eventbridge_pattern` parameter. This example demonstrates how to trigger the Kosli reporter immediately after any of the reported functions change.
 
 ```
 variable "my_lambda_functions" {

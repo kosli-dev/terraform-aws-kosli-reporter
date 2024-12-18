@@ -74,7 +74,7 @@ variable "kosli_api_token_ssm_parameter_name" {
 variable "create_default_eventbridge_rules" {
   description = "Controls whether the module should create the default eventbridge rules to trigger the Reporter lambda. There is a rule per environment type - ECS, Lambda and S3"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "use_custom_eventbridge_pattern" {
