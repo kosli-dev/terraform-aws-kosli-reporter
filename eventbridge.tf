@@ -1,4 +1,4 @@
-# Cron is default event for all the environment types
+# Cron is mandatory rule regardless of the type of environment
 resource "aws_cloudwatch_event_rule" "cron_every_minute" {
   name        = "${var.name}-cron"
   description = "Trigger ${var.name} by cron"
@@ -14,10 +14,9 @@ resource "aws_cloudwatch_event_target" "cron" {
   target_id = "${module.reporter_lambda.lambda_function_name}-cron"
 }
 
-# In case of reporting ECS environment type also using ECS events. This allows to trigger 
-# reporter lambda right after ECS task was updated.
+# Default eventbridge rule for ECS environment
 resource "aws_cloudwatch_event_rule" "ecs_task_updated" {
-  count       = var.kosli_environment_type == "ecs" ? 1 : 0
+  count       = local.to_be_reported_ecs && var.create_default_eventbridge_rules ? 1 : 0
   name        = "${var.name}-ecs-task-updated"
   description = "ECS task has been updated"
 
@@ -25,7 +24,7 @@ resource "aws_cloudwatch_event_rule" "ecs_task_updated" {
     source      = ["aws.ecs"]
     detail-type = ["ECS Task State Change"]
     detail = {
-      clusterArn    = ["arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster/${var.reported_aws_resource_name}"]
+      clusterArn    = ["arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster/*"]
       desiredStatus = ["RUNNING"]
       lastStatus    = ["RUNNING"]
     }
@@ -34,15 +33,15 @@ resource "aws_cloudwatch_event_rule" "ecs_task_updated" {
 }
 
 resource "aws_cloudwatch_event_target" "ecs_task_updated" {
-  count     = var.kosli_environment_type == "ecs" ? 1 : 0
+  count     = local.to_be_reported_ecs && var.create_default_eventbridge_rules ? 1 : 0
   arn       = module.reporter_lambda.lambda_function_arn
   rule      = aws_cloudwatch_event_rule.ecs_task_updated[0].name
   target_id = "${var.name}-ecs-task-updated"
 }
 
-# Create the default eventbridge pattern if custom one is not provided.
+# Default eventbridge rule for Lambda environment
 locals {
-  lambda_event_pattern = !var.use_custom_eventbridge_pattern && var.create_default_lambda_eventbridge_rule ? jsonencode({
+  lambda_event_pattern = jsonencode({
     source      = ["aws.lambda"]
     detail-type = ["AWS API Call via CloudTrail"]
     detail = {
@@ -57,11 +56,11 @@ locals {
         }]
       }
     }
-  }) : var.custom_eventbridge_pattern
+  })
 }
 
 resource "aws_cloudwatch_event_rule" "lambda_function_version_published" {
-  count       = var.kosli_environment_type == "lambda" && (var.create_default_lambda_eventbridge_rule || var.use_custom_eventbridge_pattern) ? 1 : 0
+  count       = local.to_be_reported_lambda && var.create_default_eventbridge_rules ? 1 : 0
   name        = "${var.name}-lambda-function-version-published"
   description = "Lambda function version has been published"
 
@@ -70,30 +69,47 @@ resource "aws_cloudwatch_event_rule" "lambda_function_version_published" {
 }
 
 resource "aws_cloudwatch_event_target" "lambda_function_version_published" {
-  count     = var.kosli_environment_type == "lambda" && (var.create_default_lambda_eventbridge_rule || var.use_custom_eventbridge_pattern) ? 1 : 0
+  count     = local.to_be_reported_lambda && var.create_default_eventbridge_rules ? 1 : 0
   arn       = module.reporter_lambda.lambda_function_arn
   rule      = aws_cloudwatch_event_rule.lambda_function_version_published[0].name
   target_id = "${var.name}-lambda-function-version-published"
 }
 
-# Trigger reporter lambda right after reported S3 bucket configuration is changed.
+# Default eventbridge rule for S3 environment
 resource "aws_cloudwatch_event_rule" "s3_configuration_updated" {
-  count       = var.kosli_environment_type == "s3" ? 1 : 0
+  count       = local.to_be_reported_s3 && var.create_default_eventbridge_rules ? 1 : 0
   name        = "${var.name}-s3-configuration-updated"
   description = "S3 configuragtion has been updated"
 
   event_pattern = jsonencode({
     source    = ["aws.s3"]
-    resources = ["arn:aws:s3:::${var.reported_aws_resource_name}"]
+    resources = ["arn:aws:s3:::*"]
   })
   tags = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "s3_configuration_updated" {
-  count     = var.kosli_environment_type == "s3" ? 1 : 0
+  count     = local.to_be_reported_s3 && var.create_default_eventbridge_rules ? 1 : 0
   arn       = module.reporter_lambda.lambda_function_arn
   rule      = aws_cloudwatch_event_rule.s3_configuration_updated[0].name
   target_id = "${var.name}-s3-configuration-updated"
+}
+
+# Custom eventbridge rule
+resource "aws_cloudwatch_event_rule" "custom" {
+  count       = var.use_custom_eventbridge_pattern ? 1 : 0
+  name        = "${var.name}-custom"
+  description = "${var.name} Eventbridge rule provided by user"
+
+  event_pattern = var.custom_eventbridge_pattern
+  tags          = var.tags
+}
+
+resource "aws_cloudwatch_event_target" "custom" {
+  count     = var.use_custom_eventbridge_pattern ? 1 : 0
+  arn       = module.reporter_lambda.lambda_function_arn
+  rule      = aws_cloudwatch_event_rule.custom[0].name
+  target_id = "${var.name}-custom"
 }
 
 # Prepare triggers list
@@ -102,22 +118,38 @@ locals {
     AllowExecutionFromCloudWatchCron = {
       principal  = "events.amazonaws.com"
       source_arn = aws_cloudwatch_event_rule.cron_every_minute.arn
-  } }
+    }
+  }
 
-  trigger_ecs_task_changed = var.kosli_environment_type == "ecs" ? { AllowExecutionFromCloudWatchECS = {
+  trigger_ecs_task_changed = local.to_be_reported_ecs && var.create_default_eventbridge_rules ? { AllowExecutionFromCloudWatchECS = {
     principal  = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.ecs_task_updated[0].arn
-  } } : {}
+    }
+  } : {}
 
-  trigger_lambda_new_version_published = var.kosli_environment_type == "lambda" && (var.create_default_lambda_eventbridge_rule || var.use_custom_eventbridge_pattern) ? { AllowExecutionFromCloudWatchLambda = {
+  trigger_lambda_new_version_published = local.to_be_reported_lambda && var.create_default_eventbridge_rules ? { AllowExecutionFromCloudWatchLambda = {
     principal  = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.lambda_function_version_published[0].arn
-  } } : {}
+    }
+  } : {}
 
-  trigger_s3_configuration_changed = var.kosli_environment_type == "s3" ? { AllowExecutionFromCloudWatchS3 = {
+  trigger_s3_configuration_changed = local.to_be_reported_s3 && var.create_default_eventbridge_rules ? { AllowExecutionFromCloudWatchS3 = {
     principal  = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.s3_configuration_updated[0].arn
-  } } : {}
+    }
+  } : {}
 
-  allowed_triggers_combined = merge(local.trigger_cron, local.trigger_ecs_task_changed, local.trigger_lambda_new_version_published, local.trigger_s3_configuration_changed)
+  trigger_custom = var.use_custom_eventbridge_pattern ? { AllowExecutionCustom = {
+    principal  = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.custom[0].arn
+    }
+  } : {}
+
+  allowed_triggers_combined = merge(
+    local.trigger_cron,
+    local.trigger_ecs_task_changed,
+    local.trigger_lambda_new_version_published,
+    local.trigger_s3_configuration_changed,
+    local.trigger_custom
+  )
 }

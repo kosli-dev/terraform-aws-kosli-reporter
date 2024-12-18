@@ -1,15 +1,11 @@
-variable "kosli_environment_type" {
-  type        = string
-  description = "The type of environment. Valid values are: ecs, lambda, s3."
-  validation {
-    condition     = contains(["ecs", "lambda", "s3"], var.kosli_environment_type)
-    error_message = "Wrong kosli_environment_type value. The value must be the one of: ecs, lambda, s3."
-  }
-}
-
-variable "kosli_environment_name" {
-  type        = string
-  description = "The name of the Kosli environment."
+variable "environments" {
+  description = "A list of maps that represents the environments to be reported to Kosli."
+  type = list(object({
+    kosli_environment_name            = string
+    kosli_environment_type            = string           # ecs, lambda or s3
+    reported_aws_resource_name        = optional(string) # The name of the reported AWS resource name(s). For the ECS environment, this refers to the name(s) of the ECS cluster; for the S3 environment, the S3 bucket name; and for the Lambda environment, the Lambda function name(s).
+    kosli_command_optional_parameters = optional(string) # The optional parameters to add to the kosli report command
+  }))
 }
 
 variable "kosli_org" {
@@ -24,7 +20,7 @@ variable "name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format v2.5.0"
+  description = "The Kosli cli version, should be set in format v2.14.0"
 }
 
 variable "tags" {
@@ -37,18 +33,6 @@ variable "kosli_host" {
   type        = string
   default     = "https://app.kosli.com"
   description = "The Kosli endpoint."
-}
-
-variable "reported_aws_resource_name" {
-  type        = string
-  default     = ""
-  description = "The name of the reported AWS resource name. For the ECS environment - the name of the ECS cluster, S3 environment - S3 bucket name, Lambda environment - Lambda function name(s)."
-}
-
-variable "kosli_command_optional_parameters" {
-  type        = string
-  default     = ""
-  description = "The optional parameters to add to the kosli report command, for example when reporting ECS environment type it could be '-s my-service'."
 }
 
 variable "cloudwatch_logs_retention_in_days" {
@@ -99,10 +83,10 @@ variable "kosli_api_token_ssm_parameter_name" {
   default     = "kosli_api_token"
 }
 
-variable "create_default_lambda_eventbridge_rule" {
-  description = "Controls whether the module should create the default eventbridge rule to trigger the Reporter lambda. The default rule is configured to trigger Reporter on every change in any lambda function in your AWS region."
+variable "create_default_eventbridge_rules" {
+  description = "Controls whether the module should create the default eventbridge rules to trigger the Reporter lambda. There is a rule per environment type - ECS, Lambda and S3"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "use_custom_eventbridge_pattern" {

@@ -1,5 +1,5 @@
 data "aws_iam_policy_document" "ecs_read_allow" {
-  count = var.kosli_environment_type == "ecs" && var.create_role ? 1 : 0
+  count = var.create_role && local.to_be_reported_ecs ? 1 : 0
   statement {
     sid    = "ECSList"
     effect = "Allow"
@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "ecs_read_allow" {
 }
 
 data "aws_iam_policy_document" "lambda_read_allow" {
-  count = var.kosli_environment_type == "lambda" && var.create_role ? 1 : 0
+  count = var.create_role && local.to_be_reported_lambda ? 1 : 0
   statement {
     sid    = "LambdaRead"
     effect = "Allow"
@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "lambda_read_allow" {
 }
 
 data "aws_iam_policy_document" "s3_read_allow" {
-  count = var.kosli_environment_type == "s3" && var.create_role ? 1 : 0
+  count = var.create_role && local.to_be_reported_s3 ? 1 : 0
   statement {
     sid    = "S3Read"
     effect = "Allow"
@@ -50,8 +50,8 @@ data "aws_iam_policy_document" "s3_read_allow" {
       "S3:GetObject"
     ]
     resources = [
-      "arn:aws:s3:::${var.reported_aws_resource_name}/*",
-      "arn:aws:s3:::${var.reported_aws_resource_name}"
+      "arn:aws:s3:::*/*",
+      "arn:aws:s3:::*"
     ]
   }
 }

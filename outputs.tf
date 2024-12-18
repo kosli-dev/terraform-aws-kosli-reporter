@@ -1,3 +1,3 @@
-output "kosli_command" {
-  value = local.kosli_command
+output "kosli_commands" {
+  value = local.kosli_commands
 }
