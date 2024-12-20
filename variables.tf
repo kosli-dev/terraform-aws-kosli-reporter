@@ -89,15 +89,15 @@ variable "create_default_eventbridge_rules" {
   default     = false
 }
 
-variable "use_custom_eventbridge_pattern" {
-  description = "Controls whether to provide custom pattern for the eventbridge rule, that triggers the Reporter Lambda Function. Set to true if you need to provide own event pattern."
+variable "use_custom_eventbridge_patterns" {
+  description = "Controls whether to provide custom patterns for the EventBridge rules that trigger the Reporter Lambda Function. Set to true if you need to provide own event patterns."
   type        = bool
   default     = false
 }
 
-variable "custom_eventbridge_pattern" {
-  description = "Event pattern described a JSON object."
-  type        = string
+variable "custom_eventbridge_patterns" {
+  description = "Event patterns described as a list of JSON objects."
+  type        = list(string)
   default     = null
 }
 

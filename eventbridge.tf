@@ -95,21 +95,21 @@ resource "aws_cloudwatch_event_target" "s3_configuration_updated" {
   target_id = "${var.name}-s3-configuration-updated"
 }
 
-# Custom eventbridge rule
+# Custom EventBridge rules and targets for multiple patterns
 resource "aws_cloudwatch_event_rule" "custom" {
-  count       = var.use_custom_eventbridge_pattern ? 1 : 0
-  name        = "${var.name}-custom"
-  description = "${var.name} Eventbridge rule provided by user"
+  count       = var.use_custom_eventbridge_patterns ? length(var.custom_eventbridge_patterns) : 0
+  name        = "${var.name}-custom-${count.index}"
+  description = "${var.name} EventBridge rule provided by user - ${count.index}"
 
-  event_pattern = var.custom_eventbridge_pattern
+  event_pattern = var.custom_eventbridge_patterns[count.index]
   tags          = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "custom" {
-  count     = var.use_custom_eventbridge_pattern ? 1 : 0
+  count     = var.use_custom_eventbridge_patterns ? length(var.custom_eventbridge_patterns) : 0
   arn       = module.reporter_lambda.lambda_function_arn
-  rule      = aws_cloudwatch_event_rule.custom[0].name
-  target_id = "${var.name}-custom"
+  rule      = aws_cloudwatch_event_rule.custom[count.index].name
+  target_id = "${var.name}-custom-${count.index}"
 }
 
 # Prepare triggers list
@@ -139,11 +139,13 @@ locals {
     }
   } : {}
 
-  trigger_custom = var.use_custom_eventbridge_pattern ? { AllowExecutionCustom = {
-    principal  = "events.amazonaws.com"
-    source_arn = aws_cloudwatch_event_rule.custom[0].arn
+  trigger_custom = var.use_custom_eventbridge_patterns ? merge(
+    { for i, rule in aws_cloudwatch_event_rule.custom : "AllowExecutionCustom-${i}" => {
+      principal  = "events.amazonaws.com"
+      source_arn = rule.arn
+      }
     }
-  } : {}
+  ) : {}
 
   allowed_triggers_combined = merge(
     local.trigger_cron,

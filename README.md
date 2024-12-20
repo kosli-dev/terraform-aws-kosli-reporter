@@ -94,12 +94,21 @@ The Kosli reporter sends reports to Kosli every minute by default. You can custo
 
 If you need to send reports more frequently, you can enable the creation of default EventBridge rules by setting the `create_default_eventbridge_rules` parameter to `true`. These default rules capture any changes to *any resource of the specified type* in the AWS region. For example, if you are tracking a single S3 bucket, the default rule will trigger the Kosli reporter whenever any S3 bucket in the region changes. This behavior might result in overly frequent triggers, making custom EventBridge rules a better alternative in some cases.
 
-To use a custom EventBridge rule, set the `use_custom_eventbridge_pattern` parameter to `true` and specify the desired rule using the `custom_eventbridge_pattern` parameter. This example demonstrates how to trigger the Kosli reporter immediately after any of the reported functions change.
+To use a custom EventBridge rule, set the `use_custom_eventbridge_patterns` parameter to `true` and specify the desired patterns using the `custom_eventbridge_patterns` parameter. This example demonstrates how to trigger the Kosli reporter immediately after any of the reported Lambda functions change or any of the tasks in the reported ECS clusters change.
 
 ```
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
+
 variable "my_lambda_functions" {
   type    = string
   default = "my_lambda_function1,my_lambda_function2"
+}
+
+variable "my_ecs_clusters" {
+  type    = string
+  default = "my_ecs_cluster1,my_ecs_cluster2"
 }
 
 module "lambda_reporter" {
@@ -111,22 +120,31 @@ module "lambda_reporter" {
   kosli_org                        = "my-organisation"
   # kosli_host                       = "https://app.kosli.com" # defaulted to app.kosli.com
   create_default_eventbridge_rules = false
-  use_custom_eventbridge_pattern   = true
-  custom_eventbridge_pattern       = local.custom_event_pattern
+  use_custom_eventbridge_patterns  = true
+  custom_eventbridge_patterns      = [
+    local.lambda_event_pattern,
+    local.ecs_event_pattern
+  ]
   
   environments = [
     {
       kosli_environment_type     = "lambda"
       kosli_environment_name     = "staging"
       reported_aws_resource_name = var.my_lambda_functions
+    },
+    {
+      kosli_environment_type = "ecs"
+      kosli_environment_name = "staging"
+      reported_aws_resource_name = var.my_ecs_clusters
     }
   ]
 }
 
 locals {
   lambda_function_names_list = split(",", var.my_lambda_functions)
+  ecs_cluster_names_list = split(",", var.my_ecs_clusters)
 
-  custom_event_pattern = jsonencode({
+  lambda_event_pattern = jsonencode({
     source      = ["aws.lambda"]
     detail-type = ["AWS API Call via CloudTrail"]
     detail = {
@@ -136,6 +154,16 @@ locals {
       responseElements = {
         functionName = local.lambda_function_names_list
       }
+    }
+  })
+  ecs_event_pattern = jsonencode(
+  {
+    source      = ["aws.ecs"]
+    detail-type = ["ECS Task State Change"]
+    detail = {
+      clusterArn    = [for cluster in local.ecs_cluster_names_list : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster/${cluster}"]
+      desiredStatus = ["RUNNING"]
+      lastStatus    = ["RUNNING"]
     }
   })
 }
