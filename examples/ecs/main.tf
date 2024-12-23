@@ -23,7 +23,7 @@ locals {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.0"
+  version = "0.7.1"
 
   name              = local.reporter_name
   kosli_cli_version = "v2.14.0"

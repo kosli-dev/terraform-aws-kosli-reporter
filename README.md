@@ -23,7 +23,7 @@ It is possible to track multiple environments with a single Kosli reporter.
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.0"
+  version = "0.7.1"
 
   name              = "kosli-reporter"
   kosli_cli_version = "v2.14.0"
@@ -54,7 +54,7 @@ It is possible to provide custom IAM role. In this case you need to disable defa
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.0"
+  version = "0.7.1"
 
   name                       = "kosli-reporter"
   kosli_cli_version          = "v2.14.0"
@@ -113,13 +113,12 @@ variable "my_ecs_clusters" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.0"
+  version = "0.7.1"
 
   name                             = local.reporter_name
   kosli_cli_version                = "v2.14.0"
   kosli_org                        = "my-organisation"
   # kosli_host                       = "https://app.kosli.com" # defaulted to app.kosli.com
-  create_default_eventbridge_rules = false
   use_custom_eventbridge_patterns  = true
   custom_eventbridge_patterns      = [
     local.lambda_event_pattern,
@@ -176,7 +175,7 @@ locals {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.0"
+  version = "0.7.1"
 
   name                   = "kosli-reporter"
   kosli_cli_version      = "v2.14.0"
