@@ -9,7 +9,6 @@ module "reporter_lambda" {
   description   = var.lambda_description
   handler       = "main.lambda_handler"
   runtime       = "python3.11"
-  # local_existing_package = terraform_data.download_package.output
 
   role_name                 = var.create_role ? var.name : null
   role_permissions_boundary = var.role_permissions_boundary
@@ -27,7 +26,6 @@ module "reporter_lambda" {
 
   source_path = [
     {
-      # path = "${path.module}/../deployment/reporter-lambda-src"
       path = "${path.module}/deployment/reporter-lambda-src"
       commands = [
         ":zip"
