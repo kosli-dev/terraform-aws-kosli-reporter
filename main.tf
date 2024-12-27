@@ -5,21 +5,35 @@ module "reporter_lambda" {
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
 
-  function_name          = var.name
-  description            = var.lambda_description
-  handler                = "main.lambda_handler"
-  runtime                = "python3.11"
-  local_existing_package = terraform_data.download_package.output
+  function_name = var.name
+  description   = var.lambda_description
+  handler       = "main.lambda_handler"
+  runtime       = "python3.11"
+  # local_existing_package = terraform_data.download_package.output
 
   role_name                 = var.create_role ? var.name : null
   role_permissions_boundary = var.role_permissions_boundary
   role_path                 = var.role_path
   policy_path               = var.policy_path
   timeout                   = var.lambda_timeout
-  create_package            = false
+  create_package            = true
   publish                   = true
   create_role               = var.create_role
   lambda_role               = var.create_role ? "" : var.role_arn
+
+  layers = [
+    local.kosli_cli_layer_arn
+  ]
+
+  source_path = [
+    {
+      # path = "${path.module}/../deployment/reporter-lambda-src"
+      path = "${path.module}/deployment/reporter-lambda-src"
+      commands = [
+        ":zip"
+      ]
+    }
+  ]
 
   environment_variables = {
     KOSLI_COMMANDS                     = join(";", local.kosli_commands)
@@ -33,6 +47,15 @@ module "reporter_lambda" {
   cloudwatch_logs_retention_in_days = var.cloudwatch_logs_retention_in_days
 
   tags = var.tags
+}
+
+data "aws_s3_object" "cli_to_layer_mapping" {
+  bucket = "lambda-layer-mapping-ccc19615fd6c05ace42e71c551995458dbdb1be7"
+  key    = "lambda_layer_versions.json"
+}
+
+locals {
+  kosli_cli_layer_arn = jsondecode(data.aws_s3_object.cli_to_layer_mapping.body)[var.kosli_cli_version][data.aws_region.current.name]
 }
 
 locals {

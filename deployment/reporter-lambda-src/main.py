@@ -38,7 +38,7 @@ def lambda_handler(event, context):
     # Execute each command
     for kosli_command in command_list:
         split_kosli_command = kosli_command.strip().split()
-        split_kosli_command[0] = f'./{split_kosli_command[0]}'
+        split_kosli_command[0] = f'/opt/{split_kosli_command[0]}'
 
         try:
             result = subprocess.run(

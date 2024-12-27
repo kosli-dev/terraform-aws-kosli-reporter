@@ -20,7 +20,8 @@ variable "name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format v2.14.0"
+  description = "The Kosli cli version, should be set in format v2.14.5"
+  default     = "v2.14.5"
 }
 
 variable "tags" {
@@ -105,12 +106,6 @@ variable "always_download_kosli_bin" {
   description = "Controls whether to download Kosli bin on every terraform run for preparing the Reporter lambda package. Could be useful in CI."
   type        = bool
   default     = false
-}
-
-variable "reporter_releases_host" {
-  type        = string
-  default     = "https://reporter-releases.kosli.com"
-  description = "Where to download the Reporter Lambda package."
 }
 
 variable "lambda_timeout" {
