@@ -31,7 +31,7 @@ module "lambda_reporter" {
   version = "0.7.1"
 
   name              = local.reporter_name
-  kosli_cli_version = "v2.14.0"
+  kosli_cli_version = "v2.11.5"
   kosli_org         = "my_org"
   # kosli_host        = "https://app.kosli.com" # defaulted to app.kosli.com
   use_custom_eventbridge_patterns = true

@@ -51,7 +51,8 @@ def lambda_handler(event, context):
             # Log stdout and stderr
             logger.info(f"Command: {kosli_command}")
             logger.info(result.stdout.decode('utf-8'))
-            logger.error(result.stderr.decode('utf-8'))
+            if len(result.stderr.decode('utf-8')) > 0:
+                logger.error(result.stderr.decode('utf-8'))
 
             # Append success or failure to results list
             if result.returncode != 0:
