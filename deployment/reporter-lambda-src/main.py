@@ -9,13 +9,13 @@ logger.setLevel(logging.INFO)
 
 ssm_client = boto3.client('ssm')
 
-ssm_parameter_name = os.getenv('KOSLI_API_TOKEN_SSM_PARAMETER_NAME')
+ssm_parameter_arn = os.getenv('KOSLI_API_TOKEN_SSM_PARAMETER_ARN')
 
-if not ssm_parameter_name:
-    logger.error("Environment variable KOSLI_API_TOKEN_SSM_PARAMETER_NAME is not set")
+if not ssm_parameter_arn:
+    logger.error("Environment variable KOSLI_API_TOKEN_SSM_PARAMETER_ARN is not set")
 
 try:
-    response = ssm_client.get_parameter(Name=ssm_parameter_name, WithDecryption=True)
+    response = ssm_client.get_parameter(Name=ssm_parameter_arn, WithDecryption=True)
     kosli_api_token = response['Parameter']['Value']
 except Exception as e:
     logger.error(f"Error retrieving SSM parameter: {e}")

@@ -78,10 +78,16 @@ variable "policy_path" {
   default     = null
 }
 
-variable "kosli_api_token_ssm_parameter_name" {
-  description = "The name of the kosli_api_token SSM parameter name"
+variable "kosli_api_token_ssm_parameter_arn" {
+  description = "ARN of the Kosli API token SSM parameter. If not set, the 'kosli_api_token' SSM parameter in the current AWS account will be used by default."
   type        = string
-  default     = "kosli_api_token"
+  default     = ""
+}
+
+variable "kosli_api_token_kms_key_arn" {
+  description = "ARN of the KMS key used to encrypt Kosli API token SSM parameter"
+  type        = string
+  default     = "*"
 }
 
 variable "create_default_eventbridge_rules" {

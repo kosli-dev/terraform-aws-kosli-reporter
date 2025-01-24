@@ -5,7 +5,7 @@ Terraform module to deploy the Kosli environment reporter as an AWS lambda funct
 
 1. Set up Kosli API token:
   - Login to Kosli and [generate a new service account and API key](https://docs.kosli.com/getting_started/service-accounts/)
-  - Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
+  - Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter in the current AWS account, but it is also possible to set custom parameter arn (use `kosli_api_token_ssm_parameter_arn` variable).
 
 2. Install Terraform: If you haven't already, you'll need to install Terraform on your local machine. You can download Terraform from the [official website](https://www.terraform.io/downloads.html).
 
@@ -23,10 +23,10 @@ It is possible to track multiple environments with a single Kosli reporter.
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.1"
+  version = "0.8.0"
 
   name              = "kosli-reporter"
-  kosli_cli_version = "v2.14.0"
+  kosli_cli_version = "v2.11.6"
   kosli_org         = "my-organisation"
   # kosli_host        = "https://app.kosli.com" # defaulted to app.kosli.com
   environments = [
@@ -54,10 +54,10 @@ It is possible to provide custom IAM role. In this case you need to disable defa
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.1"
+  version = "0.8.0"
 
   name                       = "kosli-reporter"
-  kosli_cli_version          = "v2.14.0"
+  kosli_cli_version          = "v2.11.6"
   kosli_org                  = "my-organisation"
   # kosli_host                 = "https://app.kosli.com" # defaulted to app.kosli.com
   role_arn                   = aws_iam_role.this.arn
@@ -113,10 +113,10 @@ variable "my_ecs_clusters" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.1"
+  version = "0.8.0"
 
   name                             = local.reporter_name
-  kosli_cli_version                = "v2.14.0"
+  kosli_cli_version                = "v2.11.6
   kosli_org                        = "my-organisation"
   # kosli_host                       = "https://app.kosli.com" # defaulted to app.kosli.com
   use_custom_eventbridge_patterns  = true
@@ -175,10 +175,10 @@ locals {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.1"
+  version = "0.8.0"
 
   name                   = "kosli-reporter"
-  kosli_cli_version      = "v2.14.0"
+  kosli_cli_version      = "v2.11.6"
   kosli_org              = "my-organisation"
   environments = [
     {
