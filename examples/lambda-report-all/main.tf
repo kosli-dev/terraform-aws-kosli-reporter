@@ -23,10 +23,10 @@ resource "random_pet" "this" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.7.1"
+  version = "0.8.0"
 
   name              = local.reporter_name
-  kosli_cli_version = "v2.11.5"
+  kosli_cli_version = "v2.11.6"
   kosli_org         = "my_org"
   # kosli_host        = "https://app.kosli.com" # defaulted to app.kosli.com
 

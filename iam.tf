@@ -65,7 +65,21 @@ data "aws_iam_policy_document" "ssm_read_allow" {
       "ssm:GetParameter"
     ]
     resources = [
-      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/${var.kosli_api_token_ssm_parameter_name}"
+      local.kosli_api_token_ssm_parameter_arn
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "kms_decrypt_allow" {
+  count = var.create_role ? 1 : 0
+  statement {
+    sid    = "KMSDecrypt"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt"
+    ]
+    resources = [
+      var.kosli_api_token_kms_key_arn
     ]
   }
 }
@@ -76,6 +90,7 @@ data "aws_iam_policy_document" "combined" {
     data.aws_iam_policy_document.ecs_read_allow.*.json,
     data.aws_iam_policy_document.lambda_read_allow.*.json,
     data.aws_iam_policy_document.s3_read_allow.*.json,
-    data.aws_iam_policy_document.ssm_read_allow.*.json
+    data.aws_iam_policy_document.ssm_read_allow.*.json,
+    data.aws_iam_policy_document.kms_decrypt_allow.*.json
   )
 }

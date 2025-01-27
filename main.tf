@@ -34,10 +34,10 @@ module "reporter_lambda" {
   ]
 
   environment_variables = {
-    KOSLI_COMMANDS                     = join(";", local.kosli_commands)
-    KOSLI_HOST                         = var.kosli_host
-    KOSLI_API_TOKEN_SSM_PARAMETER_NAME = var.kosli_api_token_ssm_parameter_name
-    KOSLI_ORG                          = var.kosli_org
+    KOSLI_COMMANDS                    = join(";", local.kosli_commands)
+    KOSLI_HOST                        = var.kosli_host
+    KOSLI_API_TOKEN_SSM_PARAMETER_ARN = local.kosli_api_token_ssm_parameter_arn
+    KOSLI_ORG                         = var.kosli_org
   }
 
   allowed_triggers = local.allowed_triggers_combined
@@ -75,4 +75,9 @@ locals {
   to_be_reported_ecs    = anytrue([for env in var.environments : env.kosli_environment_type == "ecs"])
   to_be_reported_lambda = anytrue([for env in var.environments : env.kosli_environment_type == "lambda"])
   to_be_reported_s3     = anytrue([for env in var.environments : env.kosli_environment_type == "s3"])
+}
+
+# If the kosli_api_token_ssm_parameter_arn variable is not set, the "kosli_api_token" SSM parameter in the current AWS account is used by default.
+locals {
+  kosli_api_token_ssm_parameter_arn = var.kosli_api_token_ssm_parameter_arn == "" ? "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/kosli_api_token" : var.kosli_api_token_ssm_parameter_arn
 }
