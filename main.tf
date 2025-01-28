@@ -47,9 +47,15 @@ module "reporter_lambda" {
   tags = var.tags
 }
 
+provider "aws" {
+  alias  = "eu_central_1"
+  region = "eu-central-1"
+}
+
 data "aws_s3_object" "cli_to_layer_mapping" {
-  bucket = "lambda-layer-mapping-ccc19615fd6c05ace42e71c551995458dbdb1be7"
-  key    = "lambda_layer_versions.json"
+  bucket   = "lambda-layer-mapping-ccc19615fd6c05ace42e71c551995458dbdb1be7"
+  key      = "lambda_layer_versions.json"
+  provider = aws.eu_central_1
 }
 
 locals {
