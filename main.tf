@@ -47,19 +47,12 @@ module "reporter_lambda" {
   tags = var.tags
 }
 
-provider "aws" {
-  alias  = "eu_central_1"
-  region = "eu-central-1"
-}
-
-data "aws_s3_object" "cli_to_layer_mapping" {
-  bucket   = "lambda-layer-mapping-ccc19615fd6c05ace42e71c551995458dbdb1be7"
-  key      = "lambda_layer_versions.json"
-  provider = aws.eu_central_1
+data "http" "cli_to_layer_mapping" {
+  url = "https://lambda-layer-mapping-ccc19615fd6c05ace42e71c551995458dbdb1be7.s3.eu-central-1.amazonaws.com/lambda_layer_versions.json"
 }
 
 locals {
-  kosli_cli_layer_arn = jsondecode(data.aws_s3_object.cli_to_layer_mapping.body)[var.kosli_cli_version][data.aws_region.current.name]
+  kosli_cli_layer_arn = jsondecode(data.http.cli_to_layer_mapping.response_body)[var.kosli_cli_version][data.aws_region.current.name]
 }
 
 locals {
