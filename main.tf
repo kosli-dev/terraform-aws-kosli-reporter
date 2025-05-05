@@ -26,7 +26,7 @@ module "reporter_lambda" {
 
   source_path = [
     {
-      path = "${path.module}/deployment/reporter-lambda-src"
+      path = "${path.module}/deployment/reporter-lambda-src/main.py"
       commands = [
         ":zip"
       ]
