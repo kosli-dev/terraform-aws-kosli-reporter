@@ -1,6 +1,6 @@
 module "reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "7.7.0"
+  version = "8.1.0"
 
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
