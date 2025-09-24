@@ -52,7 +52,7 @@ data "http" "cli_to_layer_mapping" {
 }
 
 locals {
-  kosli_cli_layer_arn = jsondecode(data.http.cli_to_layer_mapping.response_body)[var.kosli_cli_version][data.aws_region.current.name]
+  kosli_cli_layer_arn = jsondecode(data.http.cli_to_layer_mapping.response_body)[var.kosli_cli_version][data.aws_region.current.region]
 }
 
 locals {
@@ -78,5 +78,5 @@ locals {
 
 # If the kosli_api_token_ssm_parameter_arn variable is not set, the "kosli_api_token" SSM parameter in the current AWS account is used by default.
 locals {
-  kosli_api_token_ssm_parameter_arn = var.kosli_api_token_ssm_parameter_arn == "" ? "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/kosli_api_token" : var.kosli_api_token_ssm_parameter_arn
+  kosli_api_token_ssm_parameter_arn = var.kosli_api_token_ssm_parameter_arn == "" ? "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/kosli_api_token" : var.kosli_api_token_ssm_parameter_arn
 }

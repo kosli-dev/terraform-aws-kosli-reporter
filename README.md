@@ -160,7 +160,7 @@ locals {
     source      = ["aws.ecs"]
     detail-type = ["ECS Task State Change"]
     detail = {
-      clusterArn    = [for cluster in local.ecs_cluster_names_list : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster/${cluster}"]
+      clusterArn    = [for cluster in local.ecs_cluster_names_list : "arn:aws:ecs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:cluster/${cluster}"]
       desiredStatus = ["RUNNING"]
       lastStatus    = ["RUNNING"]
     }
