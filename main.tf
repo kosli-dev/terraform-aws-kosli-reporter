@@ -13,7 +13,6 @@ module "reporter_lambda" {
   role_name                 = var.create_role ? var.name : null
   role_permissions_boundary = var.role_permissions_boundary
   role_path                 = var.role_path
-  policy_path               = var.policy_path
   timeout                   = var.lambda_timeout
   create_package            = true
   publish                   = true
