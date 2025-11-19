@@ -73,7 +73,7 @@ variable "role_path" {
 }
 
 variable "policy_path" {
-  description = "Path of policies to that should be added to IAM role for Lambda Function"
+  description = "Path of policies to that should be added to IAM role for Lambda Function.  This variable is deprecated and will be removed in a later version"
   type        = string
   default     = null
 }

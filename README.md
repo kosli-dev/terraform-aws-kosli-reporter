@@ -1,6 +1,11 @@
 # Kosli Reporter
 Terraform module to deploy the Kosli environment reporter as an AWS lambda function. At the moment, the module only supports reporting of ECS, Lambda and S3 environment types.
 
+# AWS Provider Version
+
+From v0.9.0 onwards, the Kosli Reporter provider requires v6 of the Terraform AWS Provider.  If
+you are running version v5, you will need to select v0.8.2 of this Kosli Reporter provider.
+
 ## In order to deploy the Kosli reporter module, you will need to do the following:
 
 1. Set up Kosli API token:
@@ -23,7 +28,7 @@ It is possible to track multiple environments with a single Kosli reporter.
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.8.0"
+  version = "0.9.0"
 
   name              = "kosli-reporter"
   kosli_cli_version = "v2.11.6"
@@ -54,12 +59,12 @@ It is possible to provide custom IAM role. In this case you need to disable defa
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.8.0"
+  version = "0.9.0"
 
   name                       = "kosli-reporter"
   kosli_cli_version          = "v2.11.6"
   kosli_org                  = "my-organisation"
-  # kosli_host                 = "https://app.kosli.com" # defaulted to app.kosli.com
+  # kosli_host                 = "https://app.kosli.com" # defaults to app.kosli.com
   role_arn                   = aws_iam_role.this.arn
   create_role                = false
   environments = [
@@ -160,7 +165,7 @@ locals {
     source      = ["aws.ecs"]
     detail-type = ["ECS Task State Change"]
     detail = {
-      clusterArn    = [for cluster in local.ecs_cluster_names_list : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster/${cluster}"]
+      clusterArn    = [for cluster in local.ecs_cluster_names_list : "arn:aws:ecs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:cluster/${cluster}"]
       desiredStatus = ["RUNNING"]
       lastStatus    = ["RUNNING"]
     }

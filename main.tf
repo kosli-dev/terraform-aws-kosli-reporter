@@ -1,6 +1,6 @@
 module "reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "7.7.0"
+  version = "8.1.0"
 
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
@@ -13,7 +13,6 @@ module "reporter_lambda" {
   role_name                 = var.create_role ? var.name : null
   role_permissions_boundary = var.role_permissions_boundary
   role_path                 = var.role_path
-  policy_path               = var.policy_path
   timeout                   = var.lambda_timeout
   create_package            = true
   publish                   = true
@@ -52,7 +51,7 @@ data "http" "cli_to_layer_mapping" {
 }
 
 locals {
-  kosli_cli_layer_arn = jsondecode(data.http.cli_to_layer_mapping.response_body)[var.kosli_cli_version][data.aws_region.current.name]
+  kosli_cli_layer_arn = jsondecode(data.http.cli_to_layer_mapping.response_body)[var.kosli_cli_version][data.aws_region.current.region]
 }
 
 locals {
@@ -78,5 +77,5 @@ locals {
 
 # If the kosli_api_token_ssm_parameter_arn variable is not set, the "kosli_api_token" SSM parameter in the current AWS account is used by default.
 locals {
-  kosli_api_token_ssm_parameter_arn = var.kosli_api_token_ssm_parameter_arn == "" ? "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/kosli_api_token" : var.kosli_api_token_ssm_parameter_arn
+  kosli_api_token_ssm_parameter_arn = var.kosli_api_token_ssm_parameter_arn == "" ? "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/kosli_api_token" : var.kosli_api_token_ssm_parameter_arn
 }
