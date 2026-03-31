@@ -3,8 +3,8 @@ Terraform module to deploy the Kosli environment reporter as an AWS lambda funct
 
 # AWS Provider Version
 
-From v0.9.0 onwards, the Kosli Reporter provider requires v6 of the Terraform AWS Provider.  If
-you are running version v5, you will need to select v0.8.2 of this Kosli Reporter provider.
+From v0.9.0 onwards, the Kosli Reporter module requires `v6` of the Terraform AWS Provider.  If
+you are running version `v5`, you will need to select `v0.8.2` of Kosli Reporter module.
 
 ## In order to deploy the Kosli reporter module, you will need to do the following:
 
