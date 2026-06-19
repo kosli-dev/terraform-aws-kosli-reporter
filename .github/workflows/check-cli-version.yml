@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   check-cli-version:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
@@ -77,6 +77,6 @@ jobs:
 
             Release notes: https://github.com/kosli-dev/cli/releases/tag/${{ steps.versions.outputs.latest }}
           branch: auto/bump-cli-version
-          base: master
+          base: main
           labels: dependencies
           delete-branch: true

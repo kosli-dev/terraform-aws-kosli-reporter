@@ -17,7 +17,7 @@ If you are running version `v5`, you will need to select `v0.8.2` of Kosli Repor
 
 3. Configure your AWS credentials: Terraform needs access to your AWS account to be able to manage your resources. You can set up your AWS credentials by following the instructions in the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
 
-4. Create a Terraform configuration: In order to use the Kosli reporter module, you'll need to create a Terraform configuration. There are configuration examples ([see here](https://github.com/kosli-dev/terraform-aws-kosli-reporter/tree/master/examples)) that will track ECS cluster, S3 bucket and Lambda functions - `lambda-report-all`, which will report all Lambda functions in the region and `lambda-report-selectively`, which reports only selected functions.
+4. Create a Terraform configuration: In order to use the Kosli reporter module, you'll need to create a Terraform configuration. There are configuration examples ([see here](https://github.com/kosli-dev/terraform-aws-kosli-reporter/tree/main/examples)) that will track ECS cluster, S3 bucket and Lambda functions - `lambda-report-all`, which will report all Lambda functions in the region and `lambda-report-selectively`, which reports only selected functions.
 
 5. Initialize and run Terraform: Once Terraform configuration is created, you'll need to initialize Terraform by running the `terraform init` command in the same directory as your configuration files. This will download the necessary modules and providers for your configuration. Then, you can run the `terraform apply` command to apply your configuration.
 
