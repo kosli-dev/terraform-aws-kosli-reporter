@@ -1,10 +1,11 @@
-# Kosli Reporter
+# Kosli Reporter Terraform module
+
 Terraform module to deploy the Kosli environment reporter as an AWS lambda function. At the moment, the module only supports reporting of ECS, Lambda and S3 environment types.
 
 # AWS Provider Version
 
-From v0.9.0 onwards, the Kosli Reporter module requires `v6` of the Terraform AWS Provider.  If
-you are running version `v5`, you will need to select `v0.8.2` of Kosli Reporter module.
+From `v0.9.0` onwards, the Kosli Reporter module requires `v6` of the Terraform AWS Provider.
+If you are running version `v5`, you will need to select `v0.8.2` of Kosli Reporter module.
 
 ## In order to deploy the Kosli reporter module, you will need to do the following:
 
@@ -23,15 +24,16 @@ you are running version `v5`, you will need to select `v0.8.2` of Kosli Reporter
 6. To check Lambda reporter logs you can go to the AWS console -> Lambda service -> choose your lambda reporter function -> Monitor tab -> Logs tab.
 
 ## Report multiple environments
+
 It is possible to track multiple environments with a single Kosli reporter.
 
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.9.0"
+  version = "0.10.0"
 
   name              = "kosli-reporter"
-  kosli_cli_version = "v2.11.6"
+  kosli_cli_version = "v2.28.0"
   kosli_org         = "my-organisation"
   # kosli_host        = "https://app.kosli.com" # defaulted to app.kosli.com
   environments = [
@@ -52,17 +54,17 @@ module "lambda_reporter" {
 }
 ```
 
-
 ## Set custom IAM role
+
 It is possible to provide custom IAM role. In this case you need to disable default role creation by setting the parameter `create_role` to `false` and providing custom role ARN with parameter `role_arn`:
 
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.9.0"
+  version = "0.10.0"
 
   name                       = "kosli-reporter"
-  kosli_cli_version          = "v2.11.6"
+  kosli_cli_version          = "v2.28.0"
   kosli_org                  = "my-organisation"
   # kosli_host                 = "https://app.kosli.com" # defaults to app.kosli.com
   role_arn                   = aws_iam_role.this.arn
@@ -95,6 +97,7 @@ resource "aws_iam_role" "this" {
 ```
 
 ## Kosli reporter triggers
+
 The Kosli reporter sends reports to Kosli every minute by default. You can customize the schedule using the `schedule_expression` parameter.
 
 If you need to send reports more frequently, you can enable the creation of default EventBridge rules by setting the `create_default_eventbridge_rules` parameter to `true`. These default rules capture any changes to *any resource of the specified type* in the AWS region. For example, if you are tracking a single S3 bucket, the default rule will trigger the Kosli reporter whenever any S3 bucket in the region changes. This behavior might result in overly frequent triggers, making custom EventBridge rules a better alternative in some cases.
@@ -118,10 +121,10 @@ variable "my_ecs_clusters" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.8.0"
+  version = "0.10.0"
 
   name                             = local.reporter_name
-  kosli_cli_version                = "v2.11.6
+  kosli_cli_version                = "v2.28.0
   kosli_org                        = "my-organisation"
   # kosli_host                       = "https://app.kosli.com" # defaulted to app.kosli.com
   use_custom_eventbridge_patterns  = true
@@ -129,7 +132,7 @@ module "lambda_reporter" {
     local.lambda_event_pattern,
     local.ecs_event_pattern
   ]
-  
+
   environments = [
     {
       kosli_environment_type     = "lambda"
@@ -174,16 +177,17 @@ locals {
 ```
 
 ## Kosli report command
-- The Kosli cli report commands that are executed inside the Reporter Lambda function can be obtained by accessing `kosli_commands` module output. 
+
+- The Kosli cli report commands that are executed inside the Reporter Lambda function can be obtained by accessing `kosli_commands` module output.
 - Optional Kosli cli parameters can be added to the command with the `kosli_command_optional_parameters` module parameter.
 
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.8.0"
+  version = "0.10.0"
 
   name                   = "kosli-reporter"
-  kosli_cli_version      = "v2.11.6"
+  kosli_cli_version      = "v2.28.0"
   kosli_org              = "my-organisation"
   environments = [
     {
@@ -204,7 +208,8 @@ output "kosli_commands" {
 }
 ```
 
-Terraform output:
+### Terraform output
+
 ```
 Outputs:
 
