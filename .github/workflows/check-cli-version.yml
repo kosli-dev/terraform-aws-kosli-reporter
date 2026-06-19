@@ -1,0 +1,80 @@
+name: check-cli-version
+
+# Keeps the bundled Kosli CLI version current without manual maintenance.
+# On a schedule, this checks the latest kosli-dev/cli release and, when it is
+# newer than the kosli_cli_version default in variables.tf, opens a PR bumping
+# it. Consumers then pick it up via a normal module-version bump (Dependabot
+# terraform ecosystem).
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-cli-version:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Determine current and latest CLI versions
+        id: versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Current default bundled in the module (the value consumers inherit).
+          CURRENT="$(grep -A4 'variable "kosli_cli_version"' variables.tf \
+            | grep -E '^[[:space:]]*default[[:space:]]*=' \
+            | sed -E 's/.*"(v[0-9]+\.[0-9]+\.[0-9]+)".*/\1/')"
+
+          # Latest published CLI release.
+          LATEST="$(gh api repos/kosli-dev/cli/releases/latest -q .tag_name)"
+
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+
+          echo "Current default: $CURRENT"
+          echo "Latest release:  $LATEST"
+
+          if [ "$CURRENT" = "$LATEST" ]; then
+            echo "Already on the latest version; nothing to do."
+            echo "bump=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "bump=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump kosli_cli_version default
+        if: steps.versions.outputs.bump == 'true'
+        env:
+          LATEST: ${{ steps.versions.outputs.latest }}
+        run: |
+          set -euo pipefail
+          # Only touch the `default = "vX.Y.Z"` line so the description example
+          # (which also mentions a version) is left untouched.
+          sed -i -E "/^[[:space:]]*default[[:space:]]*=/ s/\"v[0-9]+\.[0-9]+\.[0-9]+\"/\"${LATEST}\"/" variables.tf
+          echo "Updated variables.tf:"
+          grep -A4 'variable "kosli_cli_version"' variables.tf
+
+      - name: Open pull request
+        if: steps.versions.outputs.bump == 'true'
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
+        with:
+          commit-message: "chore(deps): bump Kosli CLI to ${{ steps.versions.outputs.latest }}"
+          title: "chore(deps): bump Kosli CLI to ${{ steps.versions.outputs.latest }}"
+          body: |
+            Automated bump of the bundled Kosli CLI version.
+
+            - Current: `${{ steps.versions.outputs.current }}`
+            - Latest:  `${{ steps.versions.outputs.latest }}`
+
+            Release notes: https://github.com/kosli-dev/cli/releases/tag/${{ steps.versions.outputs.latest }}
+          branch: auto/bump-cli-version
+          base: master
+          labels: dependencies
+          delete-branch: true
