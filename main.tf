@@ -1,6 +1,6 @@
 module "reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "8.1.0"
+  version = "8.8.1"
 
   attach_policy_json = true
   policy_json        = var.create_role ? data.aws_iam_policy_document.combined[0].json : null
@@ -8,7 +8,7 @@ module "reporter_lambda" {
   function_name = var.name
   description   = var.lambda_description
   handler       = "main.lambda_handler"
-  runtime       = "python3.11"
+  runtime       = "python3.14"
 
   role_name                 = var.create_role ? var.name : null
   role_permissions_boundary = var.role_permissions_boundary
