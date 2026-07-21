@@ -61,10 +61,10 @@ It is possible to provide custom IAM role. In this case you need to disable defa
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.10.0"
+  version = "0.10.5"
 
   name                       = "kosli-reporter"
-  kosli_cli_version          = "v2.28.0"
+  kosli_cli_version          = "v2.33.2"
   kosli_org                  = "my-organisation"
   # kosli_host                 = "https://app.kosli.com" # defaults to app.kosli.com
   role_arn                   = aws_iam_role.this.arn
@@ -121,10 +121,10 @@ variable "my_ecs_clusters" {
 
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.10.0"
+  version = "0.10.5"
 
   name                             = local.reporter_name
-  kosli_cli_version                = "v2.28.0
+  kosli_cli_version                = "v2.33.2
   kosli_org                        = "my-organisation"
   # kosli_host                       = "https://app.kosli.com" # defaulted to app.kosli.com
   use_custom_eventbridge_patterns  = true
@@ -184,10 +184,10 @@ locals {
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.10.0"
+  version = "0.10.5"
 
   name                   = "kosli-reporter"
-  kosli_cli_version      = "v2.28.0"
+  kosli_cli_version      = "v2.33.2"
   kosli_org              = "my-organisation"
   environments = [
     {
