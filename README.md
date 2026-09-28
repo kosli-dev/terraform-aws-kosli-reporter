@@ -12,6 +12,7 @@ If you are running version `v5`, you will need to select `v0.8.2` of Kosli Repor
 1. Set up Kosli API token:
   - Login to Kosli and [generate a new service account and API key](https://docs.kosli.com/getting_started/service-accounts/)
   - Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter in the current AWS account, but it is also possible to set custom parameter arn (use `kosli_api_token_ssm_parameter_arn` variable).
+  - Or store it in AWS Secrets Manager instead (see [Read the API token from AWS Secrets Manager](#read-the-api-token-from-aws-secrets-manager)).
 
 2. Install Terraform: If you haven't already, you'll need to install Terraform on your local machine. You can download Terraform from the [official website](https://www.terraform.io/downloads.html).
 
@@ -95,6 +96,53 @@ resource "aws_iam_role" "this" {
   })
 }
 ```
+
+## Read the API token from AWS Secrets Manager
+
+Set `kosli_api_token_secret_arn` to the secret's full ARN, including the six-character suffix AWS adds, instead of `kosli_api_token_ssm_parameter_arn`. Setting both fails at plan time. Store the token as a plain string secret. The ARN must be known at plan time: a literal or a data source, not a secret created in the same apply.
+
+The module's role gets `secretsmanager:GetSecretValue` on that secret, and `kms:Decrypt` on `kosli_api_token_kms_key_arn` only when the call comes through Secrets Manager in the secret's region. With `create_role = false`, give your own role those two permissions.
+
+If the secret is in another AWS account, the module cannot set that up for you. You need:
+- a resource policy on the secret that allows the reporter's role to call `secretsmanager:GetSecretValue`
+- the secret encrypted with a customer-managed KMS key whose key policy allows the reporter's role `kms:Decrypt` (the default `aws/secretsmanager` key cannot be used from another account)
+- `kosli_api_token_kms_key_arn` set to that key's ARN
+
+## Run the reporter in a VPC behind a proxy
+
+Set `vpc_subnet_ids` and `vpc_security_group_ids` together; setting only one fails at plan time. The module gives its role the network interface permissions Lambda needs inside a VPC. With `create_role = false`, attach `AWSLambdaVPCAccessExecutionRole` or equivalent to your own role. The subnets need a route to your Kosli host and to the AWS APIs the reporter reads.
+
+Use `extra_environment_variables` for proxy settings. Both the Lambda code (boto3) and the Kosli CLI read them. Putting `amazonaws.com` in `NO_PROXY` sends AWS API calls direct, for example through VPC endpoints, and only Kosli traffic through the proxy:
+
+```
+module "lambda_reporter" {
+  source  = "kosli-dev/kosli-reporter/aws"
+  version = "<a version with these inputs>"
+
+  name      = "kosli-reporter"
+  kosli_org = "my-organisation"
+
+  kosli_api_token_secret_arn  = "arn:aws:secretsmanager:eu-central-1:111122223333:secret:kosli_api_token-AbCdEf"
+  kosli_api_token_kms_key_arn = "arn:aws:kms:eu-central-1:111122223333:key/00000000-0000-0000-0000-000000000000"
+
+  vpc_subnet_ids         = ["subnet-00000000000000000"]
+  vpc_security_group_ids = ["sg-00000000000000000"]
+
+  extra_environment_variables = {
+    HTTPS_PROXY = "http://proxy.example.internal:3128"
+    NO_PROXY    = "amazonaws.com"
+  }
+
+  environments = [
+    {
+      kosli_environment_name = "staging-ecs"
+      kosli_environment_type = "ecs"
+    }
+  ]
+}
+```
+
+`extra_environment_variables` cannot set the variables the module sets itself (`KOSLI_COMMANDS`, `KOSLI_HOST`, `KOSLI_ORG`, `KOSLI_API_TOKEN`, `KOSLI_API_TOKEN_SSM_PARAMETER_ARN`, `KOSLI_API_TOKEN_SECRET_ARN`); that fails at plan time. Other `KOSLI_*` variables, such as `KOSLI_DEBUG`, are passed to the CLI.
 
 ## Kosli reporter triggers
 

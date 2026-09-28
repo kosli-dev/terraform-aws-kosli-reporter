@@ -57,7 +57,7 @@ data "aws_iam_policy_document" "s3_read_allow" {
 }
 
 data "aws_iam_policy_document" "ssm_read_allow" {
-  count = var.create_role ? 1 : 0
+  count = var.create_role && !local.use_secrets_manager ? 1 : 0
   statement {
     sid    = "SSMRead"
     effect = "Allow"
@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "ssm_read_allow" {
 }
 
 data "aws_iam_policy_document" "kms_decrypt_allow" {
-  count = var.create_role ? 1 : 0
+  count = var.create_role && !local.use_secrets_manager ? 1 : 0
   statement {
     sid    = "KMSDecrypt"
     effect = "Allow"
@@ -84,6 +84,27 @@ data "aws_iam_policy_document" "kms_decrypt_allow" {
   }
 }
 
+data "aws_iam_policy_document" "secrets_manager_read_allow" {
+  count = var.create_role && local.use_secrets_manager ? 1 : 0
+  statement {
+    sid       = "SecretsManagerRead"
+    effect    = "Allow"
+    actions   = ["secretsmanager:GetSecretValue"]
+    resources = [var.kosli_api_token_secret_arn]
+  }
+  statement {
+    sid       = "KMSDecryptViaSecretsManager"
+    effect    = "Allow"
+    actions   = ["kms:Decrypt"]
+    resources = [var.kosli_api_token_kms_key_arn]
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values   = ["secretsmanager.${split(":", var.kosli_api_token_secret_arn)[3]}.amazonaws.com"]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "combined" {
   count = var.create_role ? 1 : 0
   source_policy_documents = concat(
@@ -91,6 +112,7 @@ data "aws_iam_policy_document" "combined" {
     data.aws_iam_policy_document.lambda_read_allow.*.json,
     data.aws_iam_policy_document.s3_read_allow.*.json,
     data.aws_iam_policy_document.ssm_read_allow.*.json,
-    data.aws_iam_policy_document.kms_decrypt_allow.*.json
+    data.aws_iam_policy_document.kms_decrypt_allow.*.json,
+    data.aws_iam_policy_document.secrets_manager_read_allow.*.json
   )
 }

@@ -1,4 +1,6 @@
+import importlib
 import os
+import sys
 import unittest
 from unittest.mock import patch, MagicMock
 
@@ -84,6 +86,44 @@ class TestLambdaHandler(unittest.TestCase):
             call_args[1:], 
             ['report', 'artifact', '--name', '"test', 'artifact"']
         )
+
+class TestApiTokenSource(unittest.TestCase):
+    def setUp(self):
+        self.ssm = MagicMock()
+        self.ssm.get_parameter.return_value = {'Parameter': {'Value': 'ssm-token'}}
+        self.secretsmanager = MagicMock()
+        self.secretsmanager.get_secret_value.return_value = {'SecretString': 'secret-token'}
+
+    def tearDown(self):
+        os.environ.pop('KOSLI_API_TOKEN_SSM_PARAMETER_ARN', None)
+        os.environ.pop('KOSLI_API_TOKEN_SECRET_ARN', None)
+
+    def fresh_import(self):
+        # The token is fetched at import time, so each case needs its own import.
+        sys.modules.pop('main', None)
+        clients = {'ssm': self.ssm, 'secretsmanager': self.secretsmanager}
+        with patch('boto3.client', side_effect=lambda service, *a, **kw: clients[service]):
+            return importlib.import_module('main')
+
+    def test_secret_arn_reads_secrets_manager(self):
+        os.environ['KOSLI_API_TOKEN_SECRET_ARN'] = 'secret-arn'
+        main = self.fresh_import()
+        self.assertEqual(main.kosli_api_token, 'secret-token')
+        self.secretsmanager.get_secret_value.assert_called_once_with(SecretId='secret-arn')
+        self.ssm.get_parameter.assert_not_called()
+
+    def test_ssm_arn_reads_ssm(self):
+        os.environ['KOSLI_API_TOKEN_SSM_PARAMETER_ARN'] = 'ssm-arn'
+        main = self.fresh_import()
+        self.assertEqual(main.kosli_api_token, 'ssm-token')
+        self.ssm.get_parameter.assert_called_once_with(Name='ssm-arn', WithDecryption=True)
+        self.secretsmanager.get_secret_value.assert_not_called()
+
+    def test_no_token_source_fails_import(self):
+        with self.assertRaises(RuntimeError):
+            self.fresh_import()
+        self.ssm.get_parameter.assert_not_called()
+        self.secretsmanager.get_secret_value.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main() 
