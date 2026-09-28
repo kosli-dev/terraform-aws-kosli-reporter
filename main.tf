@@ -42,7 +42,7 @@ module "reporter_lambda" {
 
   vpc_subnet_ids         = length(var.vpc_subnet_ids) > 0 ? var.vpc_subnet_ids : null
   vpc_security_group_ids = length(var.vpc_security_group_ids) > 0 ? var.vpc_security_group_ids : null
-  attach_network_policy  = length(var.vpc_subnet_ids) > 0
+  attach_network_policy  = length(var.vpc_subnet_ids) > 0 && length(var.vpc_security_group_ids) > 0
 
   allowed_triggers = local.allowed_triggers_combined
 
