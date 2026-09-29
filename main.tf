@@ -32,12 +32,17 @@ module "reporter_lambda" {
     }
   ]
 
-  environment_variables = {
-    KOSLI_COMMANDS                    = join(";", local.kosli_commands)
-    KOSLI_HOST                        = var.kosli_host
-    KOSLI_API_TOKEN_SSM_PARAMETER_ARN = local.kosli_api_token_ssm_parameter_arn
-    KOSLI_ORG                         = var.kosli_org
-  }
+  environment_variables = merge(var.extra_environment_variables, {
+    KOSLI_COMMANDS = join(";", local.kosli_commands)
+    KOSLI_HOST     = var.kosli_host
+    KOSLI_ORG      = var.kosli_org
+    },
+    local.use_secrets_manager ? { KOSLI_API_TOKEN_SECRET_ARN = var.kosli_api_token_secret_arn } : { KOSLI_API_TOKEN_SSM_PARAMETER_ARN = local.kosli_api_token_ssm_parameter_arn }
+  )
+
+  vpc_subnet_ids         = length(var.vpc_subnet_ids) > 0 ? var.vpc_subnet_ids : null
+  vpc_security_group_ids = length(var.vpc_security_group_ids) > 0 ? var.vpc_security_group_ids : null
+  attach_network_policy  = length(var.vpc_subnet_ids) > 0 && length(var.vpc_security_group_ids) > 0
 
   allowed_triggers = local.allowed_triggers_combined
 
@@ -73,6 +78,10 @@ locals {
   to_be_reported_ecs    = anytrue([for env in var.environments : env.kosli_environment_type == "ecs"])
   to_be_reported_lambda = anytrue([for env in var.environments : env.kosli_environment_type == "lambda"])
   to_be_reported_s3     = anytrue([for env in var.environments : env.kosli_environment_type == "s3"])
+}
+
+locals {
+  use_secrets_manager = var.kosli_api_token_secret_arn != ""
 }
 
 # If the kosli_api_token_ssm_parameter_arn variable is not set, the "kosli_api_token" SSM parameter in the current AWS account is used by default.

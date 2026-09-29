@@ -7,18 +7,16 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-ssm_client = boto3.client('ssm')
+def get_kosli_api_token():
+    secret_arn = os.getenv('KOSLI_API_TOKEN_SECRET_ARN')
+    if secret_arn:
+        return boto3.client('secretsmanager').get_secret_value(SecretId=secret_arn)['SecretString']
+    ssm_parameter_arn = os.getenv('KOSLI_API_TOKEN_SSM_PARAMETER_ARN')
+    if ssm_parameter_arn:
+        return boto3.client('ssm').get_parameter(Name=ssm_parameter_arn, WithDecryption=True)['Parameter']['Value']
+    raise RuntimeError("Neither KOSLI_API_TOKEN_SECRET_ARN nor KOSLI_API_TOKEN_SSM_PARAMETER_ARN is set")
 
-ssm_parameter_arn = os.getenv('KOSLI_API_TOKEN_SSM_PARAMETER_ARN')
-
-if not ssm_parameter_arn:
-    logger.error("Environment variable KOSLI_API_TOKEN_SSM_PARAMETER_ARN is not set")
-
-try:
-    response = ssm_client.get_parameter(Name=ssm_parameter_arn, WithDecryption=True)
-    kosli_api_token = response['Parameter']['Value']
-except Exception as e:
-    logger.error(f"Error retrieving SSM parameter: {e}")
+kosli_api_token = get_kosli_api_token()
 
 def lambda_handler(event, context):
     kosli_commands = os.getenv('KOSLI_COMMANDS')

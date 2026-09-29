@@ -79,15 +79,21 @@ variable "policy_path" {
 }
 
 variable "kosli_api_token_ssm_parameter_arn" {
-  description = "ARN of the Kosli API token SSM parameter. If not set, the 'kosli_api_token' SSM parameter in the current AWS account will be used by default."
+  description = "ARN of the Kosli API token SSM parameter. If not set, the 'kosli_api_token' SSM parameter in the current AWS account will be used by default. Leave unset when kosli_api_token_secret_arn is set."
   type        = string
   default     = ""
 }
 
 variable "kosli_api_token_kms_key_arn" {
-  description = "ARN of the KMS key used to encrypt Kosli API token SSM parameter"
+  description = "ARN of the KMS key used to encrypt the Kosli API token SSM parameter or secret. With kosli_api_token_secret_arn set, decrypt is only allowed via Secrets Manager."
   type        = string
   default     = "*"
+}
+
+variable "kosli_api_token_secret_arn" {
+  description = "Full ARN of a Secrets Manager secret holding the Kosli API token as a plain string. Use instead of kosli_api_token_ssm_parameter_arn, not with it. Must be known at plan time."
+  type        = string
+  default     = ""
 }
 
 variable "create_default_eventbridge_rules" {
@@ -118,4 +124,30 @@ variable "lambda_description" {
   type        = string
   default     = "Send reports to the Kosli app"
   description = "Lambda function description."
+}
+
+variable "vpc_subnet_ids" {
+  description = "Subnet IDs to run the Reporter Lambda Function in. Set together with vpc_security_group_ids. Empty means no VPC."
+  type        = list(string)
+  default     = []
+}
+
+variable "vpc_security_group_ids" {
+  description = "Security group IDs for the Reporter Lambda Function. Set together with vpc_subnet_ids."
+  type        = list(string)
+  default     = []
+}
+
+variable "extra_environment_variables" {
+  description = "Additional environment variables for the Reporter Lambda Function, for example HTTPS_PROXY and NO_PROXY. The variables the module sets itself cannot be set here."
+  type        = map(string)
+  default     = {}
+
+  validation {
+    condition = length(setintersection(keys(var.extra_environment_variables), [
+      "KOSLI_COMMANDS", "KOSLI_HOST", "KOSLI_ORG", "KOSLI_API_TOKEN",
+      "KOSLI_API_TOKEN_SSM_PARAMETER_ARN", "KOSLI_API_TOKEN_SECRET_ARN",
+    ])) == 0
+    error_message = "extra_environment_variables cannot set KOSLI_COMMANDS, KOSLI_HOST, KOSLI_ORG, KOSLI_API_TOKEN, KOSLI_API_TOKEN_SSM_PARAMETER_ARN or KOSLI_API_TOKEN_SECRET_ARN."
+  }
 }
