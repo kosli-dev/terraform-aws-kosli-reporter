@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "lambda_reporter" {
-  # Published users: source = "kosli-dev/kosli-reporter/aws" with a version that has these inputs.
+  # Published users: source = "kosli-dev/kosli-reporter/aws", version = "0.11.0" or later.
   source = "../../"
 
   name      = "kosli-reporter"

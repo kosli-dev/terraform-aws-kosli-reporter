@@ -117,7 +117,7 @@ Use `extra_environment_variables` for proxy settings. Both the Lambda code (boto
 ```
 module "lambda_reporter" {
   source  = "kosli-dev/kosli-reporter/aws"
-  version = "<a version with these inputs>"
+  version = "0.11.0"
 
   name      = "kosli-reporter"
   kosli_org = "my-organisation"
