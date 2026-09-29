@@ -79,7 +79,7 @@ variable "policy_path" {
 }
 
 variable "kosli_api_token_ssm_parameter_arn" {
-  description = "ARN of the Kosli API token SSM parameter. If not set, the 'kosli_api_token' SSM parameter in the current AWS account will be used by default."
+  description = "ARN of the Kosli API token SSM parameter. If not set, the 'kosli_api_token' SSM parameter in the current AWS account will be used by default. Leave unset when kosli_api_token_secret_arn is set."
   type        = string
   default     = ""
 }
