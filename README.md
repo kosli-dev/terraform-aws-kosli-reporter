@@ -99,7 +99,7 @@ resource "aws_iam_role" "this" {
 
 ## Read the API token from AWS Secrets Manager
 
-Set `kosli_api_token_secret_arn` to the secret's full ARN, including the six-character suffix AWS adds, instead of `kosli_api_token_ssm_parameter_arn`. Setting both fails at plan time. Store the token as a plain string secret. The ARN must be known at plan time: a literal or a data source, not a secret created in the same apply.
+Set `kosli_api_token_secret_arn` to the secret's full ARN, including the six-character suffix AWS adds. This replaces the SSM parameter, so leave `kosli_api_token_ssm_parameter_arn` unset: setting both fails at plan time. Store the token as a plain string secret. The ARN must be known at plan time: a literal or a data source, not a secret created in the same apply.
 
 The module's role gets `secretsmanager:GetSecretValue` on that secret, and `kms:Decrypt` on `kosli_api_token_kms_key_arn` only when the call comes through Secrets Manager in the secret's region. With `create_role = false`, give your own role those two permissions.
 
