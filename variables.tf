@@ -21,7 +21,7 @@ variable "name" {
 variable "kosli_cli_version" {
   type        = string
   description = "The Kosli cli version, should be set in format v<x.y.z>"
-  default     = "v2.47.0"
+  default     = "v2.48.0"
 }
 
 variable "tags" {
