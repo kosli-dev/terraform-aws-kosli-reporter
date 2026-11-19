@@ -151,3 +151,9 @@ variable "extra_environment_variables" {
     error_message = "extra_environment_variables cannot set KOSLI_COMMANDS, KOSLI_HOST, KOSLI_ORG, KOSLI_API_TOKEN, KOSLI_API_TOKEN_SSM_PARAMETER_ARN or KOSLI_API_TOKEN_SECRET_ARN."
   }
 }
+
+variable "ignore_source_code_hash" {
+  description = "Set to true if you deploy the Reporter Lambda Function's code yourself, outside Terraform. Terraform then replaces the code only when the module's own code changes."
+  type        = bool
+  default     = false
+}

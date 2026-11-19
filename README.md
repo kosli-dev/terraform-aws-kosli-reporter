@@ -144,6 +144,10 @@ module "lambda_reporter" {
 
 `extra_environment_variables` cannot set the variables the module sets itself (`KOSLI_COMMANDS`, `KOSLI_HOST`, `KOSLI_ORG`, `KOSLI_API_TOKEN`, `KOSLI_API_TOKEN_SSM_PARAMETER_ARN`, `KOSLI_API_TOKEN_SECRET_ARN`); that fails at plan time. Other `KOSLI_*` variables, such as `KOSLI_DEBUG`, are passed to the CLI.
 
+## Deploy the function's code yourself
+
+By default Terraform replaces the function's code whenever it differs from the module's. If your own pipeline builds and deploys the code, for example to attest the package before it runs, set `ignore_source_code_hash = true`. Terraform then replaces the code only when the module's own code changes, so deploy your package again after you upgrade the module.
+
 ## Kosli reporter triggers
 
 The Kosli reporter sends reports to Kosli every minute by default. You can customize the schedule using the `schedule_expression` parameter.

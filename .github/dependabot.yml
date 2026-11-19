@@ -42,7 +42,7 @@ updates:
     labels:
       - "dependencies"
       - "terraform"
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     open-pull-requests-limit: 10
     directory: "/deployment/reporter-lambda-src"
     schedule:

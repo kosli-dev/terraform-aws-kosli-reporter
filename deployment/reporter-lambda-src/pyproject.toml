@@ -1,0 +1,22 @@
+[project]
+name = "kosli-reporter"
+version = "0"
+description = "Runs Kosli CLI snapshot commands from a Lambda function"
+# The Lambda runtime, so the tests run on the interpreter the function uses.
+requires-python = "==3.14.*"
+dependencies = [
+    # The module zips only main.py, and the function takes boto3 from the Lambda
+    # runtime. A package built from this directory with its dependencies gets
+    # this version, named in the lockfile.
+    "boto3==1.44.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+]
+
+[tool.uv]
+# main.py is zipped as it is, not installed as a package.
+package = false
