@@ -15,6 +15,7 @@ module "reporter_lambda" {
   role_path                 = var.role_path
   timeout                   = var.lambda_timeout
   create_package            = true
+  ignore_source_code_hash   = var.ignore_source_code_hash
   publish                   = true
   create_role               = var.create_role
   lambda_role               = var.create_role ? "" : var.role_arn
