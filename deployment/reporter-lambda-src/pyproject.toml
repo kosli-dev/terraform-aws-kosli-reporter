@@ -8,7 +8,7 @@ dependencies = [
     # The module zips only main.py, and the function takes boto3 from the Lambda
     # runtime. A package built from this directory with its dependencies gets
     # this version, named in the lockfile.
-    "boto3==1.44.3",
+    "boto3==1.44.9",
 ]
 
 [dependency-groups]
